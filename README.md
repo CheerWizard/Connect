@@ -1,2 +1,0 @@
-# Connect
-Android Vulkan application
