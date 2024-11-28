@@ -62,6 +62,7 @@ public:
     ~Application();
 
     [[nodiscard]] inline ALooper* getLooper() const { return app->looper; }
+    [[nodiscard]] inline ANativeWindow* getWindow() const { return app->window; }
 
     void run();
     void resume();
@@ -146,7 +147,7 @@ void Application::onRender() {
 class Display {
 
 public:
-    Display(int32_t width, int32_t height);
+    Display(Application* application, int32_t width, int32_t height);
     ~Display();
 
     void update();
@@ -159,96 +160,7 @@ private:
 
 };
 
-void Display::update() {
-    eglSwapBuffers(display, surface);
-}
-
-class Graphics {
-
-public:
-    Graphics();
-    ~Graphics();
-
-private:
-    EGLContext context;
-
-};
-
-class InputCallback {
-public:
-    virtual void onSensor(int fd, int events, void* data) = 0;
-};
-
-class Input {
-
-public:
-    Input(const Application* const application);
-    ~Input();
-
-    void registerCallback(InputCallback* callback);
-    void unregisterCallback(InputCallback* callback);
-
-    void poll();
-
-private:
-    static int handleSensor(int fd, int events, void* data);
-    int onHandleSensor()
-
-    ASensorManager* sensorManager;
-    const ASensor* accelerometerSensor;
-    ASensorEventQueue* sensorEventQueue;
-    std::vector<InputCallback*> callbacks;
-
-};
-
-Input::Input(const Application* const application) {
-    sensorManager = ASensorManager_getInstance();
-
-    if (sensorManager == nullptr) {
-        LOGE("Failed to initialize SensorManager!");
-        return;
-    }
-
-    accelerometerSensor = ASensorManager_getDefaultSensor(
-            sensorManager,
-            ASENSOR_TYPE_ACCELEROMETER
-    );
-
-    sensorEventQueue = ASensorManager_createEventQueue(
-            sensorManager,
-            application->getLooper(),
-            ALOOPER_POLL_CALLBACK,
-            handleSensor,
-            this
-    );
-}
-
-Input::~Input() {
-
-}
-
-void Input::poll() {
-
-}
-
-void Input::registerCallback(InputCallback* callback) {
-    callbacks.emplace_back(callback);
-}
-
-void Input::unregisterCallback(InputCallback* callback) {
-    callbacks.erase(std::find(callbacks.begin(), callbacks.end(), callback));
-}
-
-int Input::handleSensor(int fd, int events, void* data) {
-    reinterpret_cast<Input*>(data)->handleSensor();
-}
-
-/**
- * Initialize an EGL context for the current display.
- */
-static int engine_init_display(Engine* engine) {
-    // initialize OpenGL ES and EGL
-
+Display::Display(Application* application, int32_t width, int32_t height) {
     /*
      * Here specify the attributes of the desired configuration.
      * Below, we select an EGLConfig with at least 8 bits per color
@@ -296,8 +208,8 @@ static int engine_init_display(Engine* engine) {
     }
 
     if (config == nullptr) {
-        LOGW("Unable to initialize EGLConfig");
-        return -1;
+        LOGE("Unable to initialize EGLConfig");
+        return;
     }
 
     /* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
@@ -306,7 +218,7 @@ static int engine_init_display(Engine* engine) {
      * ANativeWindow buffers to match, using EGL_NATIVE_VISUAL_ID. */
     eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
     surface =
-            eglCreateWindowSurface(display, config, engine->app->window, nullptr);
+            eglCreateWindowSurface(display, config, application->getWindow(), nullptr);
 
     /* A version of OpenGL has not been specified here.  This will default to
      * OpenGL 1.0.  You will need to change this if you want to use the newer
@@ -340,6 +252,98 @@ static int engine_init_display(Engine* engine) {
     glShadeModel(GL_SMOOTH);
     glDisable(GL_DEPTH_TEST);
 
+    return 0;
+}
+
+Display::~Display() {
+
+}
+
+void Display::update() {
+    eglSwapBuffers(display, surface);
+}
+
+class Graphics {
+
+public:
+    Graphics();
+    ~Graphics();
+
+private:
+    EGLContext context;
+
+};
+
+class InputCallback {
+public:
+    virtual void onSensor(int fd, int events, void* data) = 0;
+};
+
+class Input {
+
+public:
+    Input(const Application* const application);
+    ~Input();
+
+    void registerCallback(InputCallback* callback);
+    void unregisterCallback(InputCallback* callback);
+
+    void poll();
+
+private:
+    static int handleSensor(int fd, int events, void* data);
+    int onHandleSensor(int fd, int events);
+
+    ASensorManager* sensorManager;
+    const ASensor* accelerometerSensor;
+    ASensorEventQueue* sensorEventQueue;
+    std::vector<InputCallback*> callbacks;
+
+};
+
+Input::Input(const Application* const application) {
+    sensorManager = ASensorManager_getInstance();
+
+    if (sensorManager == nullptr) {
+        LOGE("Failed to initialize SensorManager!");
+        return;
+    }
+
+    accelerometerSensor = ASensorManager_getDefaultSensor(
+            sensorManager,
+            ASENSOR_TYPE_ACCELEROMETER
+    );
+
+    sensorEventQueue = ASensorManager_createEventQueue(
+            sensorManager,
+            application->getLooper(),
+            ALOOPER_POLL_CALLBACK,
+            handleSensor,
+            this
+    );
+}
+
+Input::~Input() {
+
+}
+
+void Input::poll() {
+
+}
+
+void Input::registerCallback(InputCallback* callback) {
+    callbacks.emplace_back(callback);
+}
+
+void Input::unregisterCallback(InputCallback* callback) {
+    callbacks.erase(std::find(callbacks.begin(), callbacks.end(), callback));
+}
+
+int Input::handleSensor(int fd, int events, void* data) {
+    return reinterpret_cast<Input*>(data)->onHandleSensor(fd, events);
+}
+
+int Input::onHandleSensor(int fd, int events) {
     return 0;
 }
 
