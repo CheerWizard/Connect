@@ -18,6 +18,6 @@ Graphics::~Graphics() {
 }
 
 void Graphics::render() {
-    LOGI("clearColor(%f, %f, %f, %f)", clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+    LOG_INFO("clearColor(%f, %f, %f, %f)", clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     context->clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 }

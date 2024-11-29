@@ -7,20 +7,21 @@
 
 #include "Thread.hpp"
 #include "ConditionVar.hpp"
+#include "CircleBuffer.hpp"
 
 class ThreadPool {
 
 public:
-    ThreadPool();
     ThreadPool(size_t size, size_t taskSize, const char* name, ThreadPriority priority);
     ~ThreadPool();
 
-    void run();
     void push(const function<void()>& task);
 
 private:
+    void run();
+
     bool running = false;
-    vector<Thread> threads;
+    vector<Thread*> threads;
     CircleBuffer<function<void()>> tasks;
     Mutex wakeMutex;
     ConditionVar wakeConditionVar;

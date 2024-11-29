@@ -8,38 +8,35 @@
 #include "Types.hpp"
 
 enum ThreadPriority {
-    LOWEST,
-    NORMAL,
-    HIGHEST,
+    ThreadPriority_LOWEST,
+    ThreadPriority_NORMAL,
+    ThreadPriority_HIGHEST,
 
-    COUNT
+    ThreadPriority_COUNT
 };
 
 class Thread {
 
 public:
-    Thread();
+    function<void()> runnable;
+
     Thread(const char* name, ThreadPriority priority);
     ~Thread();
 
-    uint32_t getPid();
-    uint32_t getTid();
     void run(const function<void()>& runnable);
     void detach();
     void join();
-    void sleep(uint32_t ms);
-    void yield();
-    void exit();
+    void setInfo();
+    static void sleep(uint32_t ms);
+    static void yield();
+    static void exit();
 
 private:
-    void setInfo();
-
     pthread_t thread;
-    function<void()> runnable;
     pid_t pid = 0;
     pid_t tid = 0;
     const char* name = nullptr;
-    ThreadPriority priority = ThreadPriority::NORMAL;
+    ThreadPriority priority = ThreadPriority_NORMAL;
 };
 
 #endif //CONNECT_THREAD_HPP

@@ -10,11 +10,16 @@
 class Mutex {
 
 public:
-    Mutex();
-    ~Mutex();
+    void init();
+    void free();
+
+    void lock();
+    void unlock();
+
+    inline pthread_mutex_t& getHandle() { return handle; }
 
 private:
-    pthread_mutex_t mutex = {};
+    pthread_mutex_t handle = {};
 };
 
 #endif //CONNECT_MUTEX_HPP

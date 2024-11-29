@@ -20,7 +20,7 @@ static const char* getPackageName() {
 
     if (cmdline != nullptr) {
         fread(packageName, sizeof(packageName), 1, cmdline);
-        LOGI("package=%s\n", packageName);
+        LOG_INFO("package=%s\n", packageName);
         fclose(cmdline);
     }
 
@@ -33,7 +33,7 @@ Input::Input(Application* application)
     sensorManager = ASensorManager_getInstanceForPackage(getPackageName());
 
     if (sensorManager == nullptr) {
-        LOGE("Failed to initialize SensorManager!");
+        LOG_ERR("Failed to initialize SensorManager!");
         return;
     }
 
@@ -96,13 +96,10 @@ int Input::handleSensor(int fd, int events, void* data) {
 }
 
 int Input::onHandleSensor(int fd, int events) {
-    CHECK_NOT_NULL(accelerometerSensor);
-
     ASensorEvent event;
     while (ASensorEventQueue_getEvents(sensorEventQueue, &event, 1) > 0) {
-        LOGI("Accelerometer: x=%f y=%f z=%f", event.acceleration.x, event.acceleration.y, event.acceleration.z);
+        LOG_INFO("Accelerometer: x=%f y=%f z=%f", event.acceleration.x, event.acceleration.y, event.acceleration.z);
     }
-
     // Implementations should return 1 to continue receiving callbacks, or 0 to
     // have this file descriptor and callback unregistered from the looper.
     return 1;

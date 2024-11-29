@@ -18,6 +18,8 @@ Application::Application(android_app* app)
 :
 app(app)
 {
+    LOG_OPEN(app->activity->internalDataPath);
+
     app->userData = this;
     app->onAppCmd = handleCommand;
     app->onInputEvent = handleInput;
@@ -27,11 +29,15 @@ app(app)
     }
 
     input = new Input(this);
+
+    assetManager = new AssetManager(this);
 }
 
 Application::~Application() {
     delete display;
     delete input;
+    delete assetManager;
+    LOG_CLOSE();
 }
 
 void Application::run() {
@@ -46,7 +52,7 @@ void Application::run() {
         );
 
         if (result == ALOOPER_POLL_ERROR) {
-            fatal("ALooper_pollOnce returned an error");
+            LOG_ERR("ALooper_pollOnce returned an error");
         }
 
         if (source != nullptr) {
@@ -112,7 +118,6 @@ void Application::scheduleNextTick() {
 }
 
 void Application::tick(long, void *data) {
-    CHECK_NOT_NULL(data);
     reinterpret_cast<Application*>(data)->onTick();
 }
 
@@ -153,7 +158,7 @@ void Application::onSensor(int fd, int events) {
 }
 
 void Application::onMotionPosition(float x, float y) {
-    LOGI("onMotionPosition(X:%f,Y:%f)", x, y);
+    LOG_INFO("onMotionPosition(X:%f,Y:%f)", x, y);
     state.x = x;
     state.y = y;
 }

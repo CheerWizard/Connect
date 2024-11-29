@@ -8,6 +8,7 @@
 #include "Types.hpp"
 #include "Input.hpp"
 #include "Display.hpp"
+#include "AssetManager.hpp"
 
 class android_app;
 
@@ -58,6 +59,7 @@ private:
     Display* display = nullptr;
     Input* input = nullptr;
     SavedState state;
+    AssetManager* assetManager = nullptr;
 };
 
 #endif //CONNECT_APPLICATION_HPP

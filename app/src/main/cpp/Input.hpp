@@ -5,7 +5,6 @@
 #ifndef CONNECT_INPUT_HPP
 #define CONNECT_INPUT_HPP
 
-#include <vector>
 #include <android/sensor.h>
 #include <android/input.h>
 

@@ -10,14 +10,14 @@
 class ConditionVar {
 
 public:
-    ConditionVar();
-    ~ConditionVar();
+    void init();
+    void free();
 
-    void wait(const Mutex& mutex);
+    void wait(Mutex& mutex);
     void notify();
 
 private:
     pthread_cond_t handle = {};
-}
+};
 
 #endif //CONNECT_CONDITIONVAR_HPP

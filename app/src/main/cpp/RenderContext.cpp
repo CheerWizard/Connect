@@ -12,7 +12,7 @@
 #include <vulkan/vulkan.h>
 #include <dlfcn.h>
 
-#define vkError() LOGE("Vulkan error. File[%s], line[%d]", __FILE__, __LINE__); \
+#define vkError() LOG_ERR("Vulkan error"); \
 assert(false); \
 
 #define vkCall(call) if (VK_SUCCESS != call) { vkError(); } \
@@ -454,10 +454,10 @@ RenderContext::RenderContext(Application* application) {
     // check for vulkan info on this GPU device
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
-    LOGI("Vulkan Physical Device Name: %s", deviceProperties.deviceName);
-    LOGI("Vulkan Physical Device Info: apiVersion: %x \n\t driverVersion: %x",
+    LOG_INFO("Vulkan Physical Device Name: %s", deviceProperties.deviceName);
+    LOG_INFO("Vulkan Physical Device Info: apiVersion: %x \n\t driverVersion: %x",
          deviceProperties.apiVersion, deviceProperties.driverVersion);
-    LOGI("API Version Supported: %d.%d.%d",
+    LOG_INFO("API Version Supported: %d.%d.%d",
          VK_VERSION_MAJOR(deviceProperties.apiVersion),
          VK_VERSION_MINOR(deviceProperties.apiVersion),
          VK_VERSION_PATCH(deviceProperties.apiVersion)
@@ -466,21 +466,21 @@ RenderContext::RenderContext(Application* application) {
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCapabilities);
 
-    LOGI("Vulkan Surface Capabilities:\n");
-    LOGI("\timage count: %u - %u\n", surfaceCapabilities.minImageCount,
+    LOG_INFO("Vulkan Surface Capabilities:\n");
+    LOG_INFO("\timage count: %u - %u\n", surfaceCapabilities.minImageCount,
          surfaceCapabilities.maxImageCount);
-    LOGI("\tarray layers: %u\n", surfaceCapabilities.maxImageArrayLayers);
-    LOGI("\timage size (now): %dx%d\n", surfaceCapabilities.currentExtent.width,
+    LOG_INFO("\tarray layers: %u\n", surfaceCapabilities.maxImageArrayLayers);
+    LOG_INFO("\timage size (now): %dx%d\n", surfaceCapabilities.currentExtent.width,
          surfaceCapabilities.currentExtent.height);
-    LOGI("\timage size (extent): %dx%d - %dx%d\n",
+    LOG_INFO("\timage size (extent): %dx%d - %dx%d\n",
          surfaceCapabilities.minImageExtent.width,
          surfaceCapabilities.minImageExtent.height,
          surfaceCapabilities.maxImageExtent.width,
          surfaceCapabilities.maxImageExtent.height);
-    LOGI("\tusage: %x\n", surfaceCapabilities.supportedUsageFlags);
-    LOGI("\tcurrent transform: %u\n", surfaceCapabilities.currentTransform);
-    LOGI("\tallowed transforms: %x\n", surfaceCapabilities.supportedTransforms);
-    LOGI("\tcomposite alpha flags: %u\n", surfaceCapabilities.currentTransform);
+    LOG_INFO("\tusage: %x\n", surfaceCapabilities.supportedUsageFlags);
+    LOG_INFO("\tcurrent transform: %u\n", surfaceCapabilities.currentTransform);
+    LOG_INFO("\tallowed transforms: %x\n", surfaceCapabilities.supportedTransforms);
+    LOG_INFO("\tcomposite alpha flags: %u\n", surfaceCapabilities.currentTransform);
 
     // Find a graphics queue family
     uint32_t queueFamilyCount;
@@ -501,7 +501,7 @@ RenderContext::RenderContext(Application* application) {
     }
     assert(queueFamilyIndex < queueFamilyCount);
 
-    // Create a logical device from GPU we picked
+    // Create a LOG_INFOcal device from GPU we picked
 
     float priorities[] = { 1.0f };
 
@@ -536,5 +536,5 @@ RenderContext::~RenderContext() {
 }
 
 void RenderContext::clearColor(float r, float g, float b, float a) {
-    LOGI("clearColor(%f:%f:%f:%f)", r, g, b, a);
+    LOG_INFO("clearColor(%f:%f:%f:%f)", r, g, b, a);
 }

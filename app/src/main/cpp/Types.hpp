@@ -13,6 +13,13 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <cstdint>
+#include <cstdio>
+#include <csignal>
+#include <cstring>
+#include <functional>
+#include <pthread.h>
+#include <unistd.h>
 
 using namespace std;
 
