@@ -6,6 +6,7 @@
 #define CONNECT_DISPLAY_HPP
 
 #include "Graphics.hpp"
+#include "Types.hpp"
 
 class Application;
 
@@ -14,11 +15,8 @@ class Display {
 public:
     int32_t width, height, format;
     Graphics* graphics = nullptr;
-    EGLDisplay display;
-    EGLSurface surface;
-    EGLConfig config;
 
-    Display(Application* application, int32_t width, int32_t height);
+    Display(Application* application);
     ~Display();
 
     void swap();

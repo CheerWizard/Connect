@@ -20,21 +20,20 @@ struct SavedState {
     int32_t y = 0;
 };
 
-class Application : public InputCallback {
+class Application {
 
 public:
     android_app* app = nullptr;
 
-    Application(android_app* app, int32_t width, int32_t height);
+    Application(android_app* app);
     ~Application();
 
     void run();
     void resume();
     void pause();
 
-    void onSensor(int fd, int events) override;
-
-    void onMotionPosition(float x, float y) override;
+    void onSensor(int fd, int events);
+    void onMotionPosition(float x, float y);
 
 private:
     static void handleCommand(android_app* app, int32_t command);
@@ -56,7 +55,6 @@ private:
     void onRender();
 
     bool running = false;
-    int32_t width, height;
     Display* display = nullptr;
     Input* input = nullptr;
     SavedState state;

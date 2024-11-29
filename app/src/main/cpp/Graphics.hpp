@@ -5,8 +5,7 @@
 #ifndef CONNECT_GRAPHICS_HPP
 #define CONNECT_GRAPHICS_HPP
 
-#include <EGL/egl.h>
-#include <GLES/gl.h>
+#include "RenderContext.hpp"
 
 class Display;
 
@@ -19,15 +18,14 @@ class Graphics {
 public:
     Color clearColor = { 1, 1, 1, 1 };
 
-    Graphics(const Display* const display);
+    Graphics(Application* application, Display* display);
     ~Graphics();
 
     void render();
 
 private:
-    EGLContext context;
-    const Display* const display;
-
+    Display* display;
+    RenderContext* context;
 };
 
 

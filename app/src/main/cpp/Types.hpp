@@ -14,4 +14,6 @@
 #include <vector>
 #include <string>
 
+using namespace std;
+
 #endif //CONNECT_TYPES_HPP

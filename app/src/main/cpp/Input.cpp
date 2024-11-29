@@ -27,7 +27,9 @@ static const char* getPackageName() {
     return packageName;
 }
 
-Input::Input(const Application* const application) {
+Input::Input(Application* application)
+: application(application)
+{
     sensorManager = ASensorManager_getInstanceForPackage(getPackageName());
 
     if (sensorManager == nullptr) {
@@ -67,23 +69,13 @@ int32_t Input::handle(AInputEvent* inputEvent) {
             {
                 float x = AMotionEvent_getX(inputEvent, 0);
                 float y = AMotionEvent_getY(inputEvent, 0);
-                for (auto& callback : callbacks) {
-                    callback->onMotionPosition(x, y);
-                }
+                application->onMotionPosition(x, y);
             }
             break;
         case AINPUT_EVENT_TYPE_TOUCH_MODE:
             break;
     }
     return 1;
-}
-
-void Input::registerCallback(InputCallback* callback) {
-    callbacks.emplace_back(callback);
-}
-
-void Input::unregisterCallback(InputCallback* callback) {
-    callbacks.erase(std::find(callbacks.begin(), callbacks.end(), callback));
 }
 
 void Input::onFocusGained() {

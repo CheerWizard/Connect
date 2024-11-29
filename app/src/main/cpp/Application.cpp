@@ -9,16 +9,14 @@
 #include <android/choreographer.h>
 
 void android_main(android_app* app) {
-    Application* application = new Application(app, 300, 300);
+    Application* application = new Application(app);
     application->run();
     delete application;
 }
 
-Application::Application(android_app* app, int32_t width, int32_t height)
+Application::Application(android_app* app)
 :
-app(app),
-width(width),
-height(height)
+app(app)
 {
     app->userData = this;
     app->onAppCmd = handleCommand;
@@ -29,7 +27,6 @@ height(height)
     }
 
     input = new Input(this);
-    input->registerCallback(this);
 }
 
 Application::~Application() {
@@ -82,7 +79,7 @@ void Application::onHandleCommand(int32_t command) {
             break;
         case APP_CMD_INIT_WINDOW:
             if (display == nullptr || app->window != nullptr) {
-                display = new Display(this, width, height);
+                display = new Display(this);
             }
             break;
         case APP_CMD_TERM_WINDOW:
@@ -136,9 +133,9 @@ void Application::onUpdate() {
     }
 
     display->graphics->clearColor = {
-            ((float) state.x) / (float) display->width,
+            (float) state.x / (float) display->width,
             state.angle,
-            ((float) state.y) / (float) display->height,
+            (float) state.y / (float) display->height,
             1
     };
 }

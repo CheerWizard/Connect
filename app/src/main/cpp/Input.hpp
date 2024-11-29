@@ -11,20 +11,11 @@
 
 class Application;
 
-class InputCallback {
-public:
-    virtual void onSensor(int fd, int events) = 0;
-    virtual void onMotionPosition(float x, float y) = 0;
-};
-
 class Input {
 
 public:
-    Input(const Application* const application);
+    Input(Application* application);
     ~Input();
-
-    void registerCallback(InputCallback* callback);
-    void unregisterCallback(InputCallback* callback);
 
     int32_t handle(AInputEvent* inputEvent);
 
@@ -35,11 +26,10 @@ private:
     static int handleSensor(int fd, int events, void* data);
     int onHandleSensor(int fd, int events);
 
-    std::vector<InputCallback*> callbacks;
+    Application* application;
     ASensorManager* sensorManager = nullptr;
     const ASensor* accelerometerSensor = nullptr;
     ASensorEventQueue* sensorEventQueue = nullptr;
-
 };
 
 #endif //CONNECT_INPUT_HPP

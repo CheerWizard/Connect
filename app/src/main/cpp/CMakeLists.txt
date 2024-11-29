@@ -7,6 +7,7 @@ add_library(native_app_glue STATIC ${ANDROID_NDK}/sources/android/native_app_glu
 # Export ANativeActivity_onCreate(),
 # Refer to: https://github.com/android-ndk/ndk/issues/381.
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
+set(CMAKE_CXX_FLAGS "-DVK_USE_PLATFORM_ANDROID_KHR")
 
 file(GLOB_RECURSE SRC ../cpp/*.c ../cpp/*.cpp)
 
