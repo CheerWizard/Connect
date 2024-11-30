@@ -1,19 +1,12 @@
 //
-// Created by cheerwizard on 29.11.24.
+// Created by cheerwizard on 30.11.24.
 //
 
 #include "Asset.hpp"
 #include "Logger.hpp"
-
-#include <android/asset_manager.h>
+#include "android/AndroidLauncher.hpp"
 
 #define ASSET reinterpret_cast<AAsset*>(handle)
-
-Asset::Asset(void *handle)
-:
-handle(handle)
-{
-}
 
 void Asset::read() {
     buffer = (void*) AAsset_getBuffer(ASSET);

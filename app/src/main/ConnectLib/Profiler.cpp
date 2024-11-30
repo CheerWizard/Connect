@@ -10,11 +10,11 @@ Profiler::Profiler(const char* fileName, const char* functionName, int line) {
     profile.fileName = fileName;
     profile.functionName = functionName;
     profile.line = line;
-    profile.beginTime = Clock().getTimeMillis();
+    profile.beginTime = Clock::getTimeMillis();
 }
 
 Profiler::~Profiler() {
-    profile.endTime = Clock().getTimeMillis();
+    profile.endTime = Clock::getTimeMillis();
     LOG_INFO(
             "%s(%s:%s) -> tooks %f ms",
             profile.functionName,

@@ -7,18 +7,10 @@
 
 #include "Asset.hpp"
 
-class Application;
-
 class AssetManager {
 
 public:
-    AssetManager(Application* application);
-    ~AssetManager();
-
-    Asset open(const char* filepath);
-
-private:
-    void* handle = nullptr;
+    static Asset open(const char* filepath);
 
 };
 

@@ -6,15 +6,7 @@
 #define CONNECT_APPLICATION_HPP
 
 #include "Types.hpp"
-#include "Input.hpp"
-#include "Display.hpp"
-#include "AssetManager.hpp"
 
-class android_app;
-
-/**
- * Our saved state data.
- */
 struct SavedState {
     float angle = 0.0f;
     int32_t x = 0;
@@ -24,9 +16,7 @@ struct SavedState {
 class Application {
 
 public:
-    android_app* app = nullptr;
-
-    Application(android_app* app);
+    Application(const char* logFilepath);
     ~Application();
 
     void run();
@@ -36,14 +26,20 @@ public:
     void onSensor(int fd, int events);
     void onMotionPosition(float x, float y);
 
+    void initDisplay();
+    void terminateDisplay();
+
+    void focusGained();
+    void focusLost();
+
+    void saveStatePlatform();
+
 private:
-    static void handleCommand(android_app* app, int32_t command);
-
-    void onHandleCommand(int32_t command);
-
-    static int32_t handleInput(android_app* app, AInputEvent* inputEvent);
-
-    int32_t onHandleInput(AInputEvent* inputEvent);
+    void initPlatform();
+    void freePlatform();
+    bool isPlatformAlive();
+    void pollPlatform();
+    void restoreStatePlatform();
 
     void scheduleNextTick();
 
@@ -56,10 +52,7 @@ private:
     void onRender();
 
     bool running = false;
-    Display* display = nullptr;
-    Input* input = nullptr;
-    SavedState state;
-    AssetManager* assetManager = nullptr;
+    SavedState savedState;
 };
 
 #endif //CONNECT_APPLICATION_HPP

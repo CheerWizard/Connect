@@ -10,7 +10,7 @@
 class Asset {
 
 public:
-    Asset(void* handle);
+    Asset(void* handle) : handle(handle) {}
 
     void read();
     void close();

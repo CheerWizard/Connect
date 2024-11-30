@@ -10,7 +10,7 @@ ThreadPool::ThreadPool(size_t threadSize, size_t taskSize, const char* name, Thr
     wakeMutex.init();
     wakeConditionVar.init();
     for (int i = 0; i < threadSize ; i++) {
-        threads.emplace_back(new Thread(name, priority));
+        threads[i] = new Thread(name, priority);
     }
     run();
 }

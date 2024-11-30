@@ -27,9 +27,9 @@ struct Time {
 class Clock {
 
 public:
-    DateTime getDateTime();
-    Time getTime();
-    float getTimeMillis();
+    static DateTime getDateTime();
+    static Time getTime();
+    static float getTimeMillis();
 };
 
 #endif //CONNECT_CLOCK_HPP

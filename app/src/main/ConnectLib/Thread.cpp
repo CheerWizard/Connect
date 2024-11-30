@@ -72,8 +72,8 @@ void Thread::setInfo() {
     ASSERT(result != 0, "Failed to set thread priority on Android!");
 
     // Set name
-    result = pthread_setname_np(thread, name);
-    ASSERT(result != 0, "Failed to set thread name on Android!");
+//    result = pthread_setname_np(thread, name);
+//    ASSERT(result != 0, "Failed to set thread name on Android!");
 }
 
 void Thread::sleep(uint32_t ms) {
