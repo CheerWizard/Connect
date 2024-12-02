@@ -15,6 +15,15 @@ include_directories(../cpp)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${SRC})
 
+include(FetchContent)
+
+FetchContent_Declare(
+        oboe
+        GIT_REPOSITORY https://github.com/google/oboe.git
+)
+
+FetchContent_MakeAvailable(oboe)
+
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${ANDROID_NDK}/sources/android/native_app_glue)
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
@@ -23,4 +32,5 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
         native_app_glue
         EGL
         GLESv1_CM
+        oboe
 )
