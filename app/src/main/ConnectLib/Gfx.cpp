@@ -5,10 +5,10 @@
 #include "Gfx.hpp"
 #include "Logger.hpp"
 
+#define GL_CONTEXT reinterpret_cast<EGLContext>(context)
+
 #include <EGL/egl.h>
 #include <GLES/gl.h>
-
-#define GL_CONTEXT reinterpret_cast<EGLContext>(context)
 
 void Gfx::init() {
     const GLubyte* vendor = glGetString(GL_VENDOR);

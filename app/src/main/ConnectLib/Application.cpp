@@ -64,7 +64,7 @@ void Application::onUpdate() {
 }
 
 void Application::onRender() {
-    Gfx::clearBuffer();
+    Gfx::clearBuffer(COLOR_BUFFER_BIT);
     Display::swapChain();
 }
 

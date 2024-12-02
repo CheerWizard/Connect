@@ -20,6 +20,8 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <sstream>
+#include <cmath>
+#include <random>
 
 using namespace std;
 

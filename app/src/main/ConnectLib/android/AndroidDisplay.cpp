@@ -6,7 +6,7 @@
 #include "Logger.hpp"
 #include "Gfx.hpp"
 
-#include "android/AndroidLauncher.hpp"
+#include "Android.hpp"
 
 #include <EGL/egl.h>
 

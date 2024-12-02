@@ -4,7 +4,7 @@
 
 #include "Application.hpp"
 #include "Logger.hpp"
-#include "android/AndroidLauncher.hpp"
+#include "Android.hpp"
 
 static void handleCommand(android_app* app, int32_t command) {
     Application* application = reinterpret_cast<Application*>(app->userData);

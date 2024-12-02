@@ -3,7 +3,7 @@
 //
 
 #include "AssetManager.hpp"
-#include "android/AndroidLauncher.hpp"
+#include "Android.hpp"
 
 Asset AssetManager::open(const char *filepath) {
     AAsset* androidAsset = AAssetManager_open(app->activity->assetManager, filepath, AASSET_MODE_BUFFER);

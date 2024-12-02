@@ -2,7 +2,7 @@
 // Created by cheerwizard on 30.11.24.
 //
 
-#include "AndroidLauncher.hpp"
+#include "Android.hpp"
 #include "Application.hpp"
 #include "Types.hpp"
 

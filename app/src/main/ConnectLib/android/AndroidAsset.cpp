@@ -4,7 +4,7 @@
 
 #include "Asset.hpp"
 #include "Logger.hpp"
-#include "android/AndroidLauncher.hpp"
+#include "Android.hpp"
 
 #define ASSET reinterpret_cast<AAsset*>(handle)
 

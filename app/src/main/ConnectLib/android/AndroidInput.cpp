@@ -5,7 +5,7 @@
 #include "Input.hpp"
 #include "Logger.hpp"
 #include "Application.hpp"
-#include "AndroidLauncher.hpp"
+#include "Android.hpp"
 
 ASensorManager* sensorManager = nullptr;
 const ASensor* accelerometerSensor = nullptr;
@@ -62,27 +62,27 @@ static int32_t handleInput(android_app* app, AInputEvent* inputEvent) {
 }
 
 void Input::init() {
-    app->onInputEvent = handleInput;
+//    app->onInputEvent = handleInput;
 
-    sensorManager = ASensorManager_getInstanceForPackage(getPackageName());
+//    sensorManager = ASensorManager_getInstanceForPackage(getPackageName());
 
-    if (sensorManager == nullptr) {
-        LOG_ERR("Failed to initialize SensorManager!");
-        return;
-    }
-
-    accelerometerSensor = ASensorManager_getDefaultSensor(
-            sensorManager,
-            ASENSOR_TYPE_ACCELEROMETER
-    );
-
-    sensorEventQueue = ASensorManager_createEventQueue(
-            sensorManager,
-            app->looper,
-            ALOOPER_POLL_CALLBACK,
-            handleSensor,
-            nullptr
-    );
+//    if (sensorManager == nullptr) {
+//        LOG_ERR("Failed to initialize SensorManager!");
+//        return;
+//    }
+//
+//    accelerometerSensor = ASensorManager_getDefaultSensor(
+//            sensorManager,
+//            ASENSOR_TYPE_ACCELEROMETER
+//    );
+//
+//    sensorEventQueue = ASensorManager_createEventQueue(
+//            sensorManager,
+//            app->looper,
+//            ALOOPER_POLL_CALLBACK,
+//            handleSensor,
+//            nullptr
+//    );
 }
 
 void Input::free() {

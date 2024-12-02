@@ -3,7 +3,7 @@
 //
 
 #include "Logger.hpp"
-#include "android/AndroidLauncher.hpp"
+#include "Android.hpp"
 
 void Logger::printVerbose(LogColor color, char *log) {
     __android_log_buf_write(LOG_ID_MAIN, ANDROID_LOG_VERBOSE, LOG_TAG, log);
