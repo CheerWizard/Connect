@@ -3,12 +3,6 @@
 //
 
 #include "Display.hpp"
-#include "Logger.hpp"
-#include "Gfx.hpp"
-
-#include "Android.hpp"
-
-#include <EGL/egl.h>
 
 EGLint numConfigs;
 EGLConfig config = nullptr;
@@ -65,9 +59,9 @@ void Display::init() {
     /* A version of OpenGL has not been specified here.  This will default to
      * OpenGL 1.0.  You will need to change this if you want to use the newer
      * features of OpenGL like shaders. */
-    Gfx::context = eglCreateContext(display, config, nullptr, nullptr);
+    graphicsContext = eglCreateContext(display, config, nullptr, nullptr);
 
-    if (eglMakeCurrent(display, surface, surface, Gfx::context) == EGL_FALSE) {
+    if (eglMakeCurrent(display, surface, surface, graphicsContext) == EGL_FALSE) {
         LOG_WARN("Unable to eglMakeCurrent");
     }
 
@@ -78,9 +72,9 @@ void Display::init() {
 void Display::terminate() {
     if (display != EGL_NO_DISPLAY) {
         eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-        if (Gfx::context != EGL_NO_CONTEXT) {
-            eglDestroyContext(display, Gfx::context);
-            Gfx::context = EGL_NO_CONTEXT;
+        if (graphicsContext != EGL_NO_CONTEXT) {
+            eglDestroyContext(display, graphicsContext);
+            graphicsContext = EGL_NO_CONTEXT;
         }
         if (surface != EGL_NO_SURFACE) {
             eglDestroySurface(display, surface);

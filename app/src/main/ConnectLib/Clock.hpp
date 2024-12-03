@@ -5,8 +5,6 @@
 #ifndef CONNECT_CLOCK_HPP
 #define CONNECT_CLOCK_HPP
 
-#include "Types.hpp"
-
 struct DateTime {
     uint32_t y;   // year
     uint32_t m;   // month

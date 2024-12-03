@@ -3,20 +3,22 @@
 //
 
 #include "Application.hpp"
-#include "Logger.hpp"
 #include "Input.hpp"
 #include "Display.hpp"
-#include "Gfx.hpp"
+#include "Graphics.hpp"
 #include "AssetManager.hpp"
+#include "Audio.hpp"
 
 Application::Application(const char* logFilepath) {
-    LOG_OPEN(logFilepath);
+    LOG_OPEN("Connect", logFilepath);
     initPlatform();
     restoreStatePlatform();
     Input::init();
+    Audio::init();
 }
 
 Application::~Application() {
+    Audio::free();
     Input::free();
     freePlatform();
     LOG_CLOSE();
@@ -55,7 +57,7 @@ void Application::onUpdate() {
         savedState.angle = 0;
     }
 
-    Gfx::clearColor = {
+    Graphics::clearColor = {
             (float) savedState.x / (float) Display::width,
             savedState.angle,
             (float) savedState.y / (float) Display::height,
@@ -64,7 +66,7 @@ void Application::onUpdate() {
 }
 
 void Application::onRender() {
-    Gfx::clearBuffer(COLOR_BUFFER_BIT);
+    Graphics::render();
     Display::swapChain();
 }
 
@@ -80,11 +82,11 @@ void Application::onMotionPosition(float x, float y) {
 
 void Application::initDisplay() {
     Display::init();
-    Gfx::init();
+    Graphics::init();
 }
 
 void Application::terminateDisplay() {
-    Gfx::free();
+    Graphics::free();
     Display::terminate();
     pause();
 }

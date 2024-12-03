@@ -5,8 +5,6 @@
 #ifndef CONNECT_ASSET_HPP
 #define CONNECT_ASSET_HPP
 
-#include "Types.hpp"
-
 class Asset {
 
 public:

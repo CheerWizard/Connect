@@ -3,8 +3,6 @@
 //
 
 #include "Asset.hpp"
-#include "Logger.hpp"
-#include "Android.hpp"
 
 #define ASSET reinterpret_cast<AAsset*>(handle)
 

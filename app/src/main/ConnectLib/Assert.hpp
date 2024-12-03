@@ -8,29 +8,49 @@
 #include "DebugBreak.hpp"
 
 template<typename... Args>
-void assertInternal(bool condition, const char* msg, Args ... args) {
-    if (!condition) {
-        char buffer[256] = {};
-        sprintf(buffer, msg, args...);
-        DEBUG_BREAK();
-    }
-}
+void assertInternal(bool condition, const char* conditionStr, const char* msg, Args ... args);
 
 #if defined(DEBUG)
 
 #if defined(ANDROID)
 
-#define ASSERT(condition, msg, ...) assertInternal(condition, msg, 0, ##__VA_ARGS__)
+#define ASSERT(condition, msg, ...) assertInternal(condition, #condition, msg, 0, ##__VA_ARGS__)
 
 #else
 
-#define ASSERT(condition, msg, ...) assertInternal(condition, msg, ##__VA_ARGS__)
+#define ASSERT(condition, msg, ...) assertInternal(condition, #condition, msg, ##__VA_ARGS__)
 
 #endif
 
 #else
 
 #define ASSERT(condition, msg, ...)
+
+#endif
+
+#if defined(ANDROID)
+
+#include <android/log.h>
+
+template<typename... Args>
+void assertInternal(bool condition, const char* conditionStr, const char* msg, Args ... args) {
+    if (!condition) {
+        char buffer[256] = {};
+        sprintf(buffer, msg, args...);
+        __android_log_assert(conditionStr, "ASSERT", buffer);
+    }
+}
+
+#else
+
+template<typename... Args>
+void assertInternal(bool condition, const char* conditionStr, const char* msg, Args ... args) {
+    if (!condition) {
+        char buffer[256] = {};
+        sprintf(buffer, msg, args...);
+        DEBUG_BREAK();
+    }
+}
 
 #endif
 

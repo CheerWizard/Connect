@@ -5,8 +5,6 @@
 #ifndef CONNECT_CIRCLEBUFFER_HPP
 #define CONNECT_CIRCLEBUFFER_HPP
 
-#include "Types.hpp"
-
 template<typename T>
 struct CircleBuffer final {
     friend CircleBuffer;

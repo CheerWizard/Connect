@@ -2,9 +2,7 @@
 // Created by cheerwizard on 30.11.24.
 //
 
-#include "Android.hpp"
 #include "Application.hpp"
-#include "Types.hpp"
 
 void android_main(android_app* state) {
     app = state;

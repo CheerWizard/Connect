@@ -3,7 +3,6 @@
 //
 
 #include "Thread.hpp"
-#include "Assert.hpp"
 
 static const int ThreadPriorities[ThreadPriority_COUNT] = {
         1, // ThreadPriority_LOWEST

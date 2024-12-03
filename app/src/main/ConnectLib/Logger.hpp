@@ -8,11 +8,9 @@
 #include "ThreadPool.hpp"
 #include "Clock.hpp"
 
-#define LOG_TAG "Connect"
-
 #if defined(DEBUG)
 
-#define LOG_OPEN(filepath) logger.open(filepath)
+#define LOG_OPEN(tag, filepath) logger.open(tag, filepath)
 #define LOG_CLOSE() logger.close()
 
 #if defined(ANDROID)
@@ -78,7 +76,7 @@ class Logger {
 public:
     ThreadPool* threadPool = nullptr;
 
-    void open(const char* filepath);
+    void open(const char* tag, const char* filepath);
 
     void close();
 
@@ -113,6 +111,7 @@ private:
     void printAbort(LogColor color, char* log);
 
     FILE* file = nullptr;
+    const char* tag = nullptr;
     char buffer[256] = {};
 };
 

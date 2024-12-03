@@ -5,8 +5,6 @@
 #ifndef CONNECT_INPUT_HPP
 #define CONNECT_INPUT_HPP
 
-#include "Types.hpp"
-
 class Application;
 
 class Input {

@@ -5,8 +5,6 @@
 #ifndef CONNECT_DISPLAY_HPP
 #define CONNECT_DISPLAY_HPP
 
-#include "Types.hpp"
-
 class Display {
 
 public:

@@ -5,8 +5,6 @@
 #ifndef CONNECT_MATH_HPP
 #define CONNECT_MATH_HPP
 
-#include "Types.hpp"
-
 constexpr float operator ""_PI(unsigned long long x) {
     return x * 3.14159265359f;
 }
@@ -58,7 +56,21 @@ struct Radians {
 
 template<typename T>
 struct Vec2 {
-    T x, y;
+
+    union {
+        struct {
+            T xy[2];
+        };
+        struct {
+            T rg[2];
+        };
+        struct {
+            T x, y;
+        };
+        struct {
+            T r, g;
+        };
+    };
 
     Vec2() = default;
 
@@ -154,7 +166,21 @@ inline T cross(const Vec2<T>& v1, const Vec2<T>& v2) {
 
 template<typename T>
 struct Vec3 {
-    T x, y, z;
+
+    union {
+        struct {
+            T xyz[3];
+        };
+        struct {
+            T rgb[3];
+        };
+        struct {
+            T x, y, z;
+        };
+        struct {
+            T r, g, b;
+        };
+    };
 
     Vec3() = default;
 
@@ -260,7 +286,20 @@ inline Vec3<T> cross(const Vec3<T>& v1, const Vec3<T>& v2) {
 
 template<typename T>
 struct Vec4 {
-    T x, y, z, w;
+    union {
+        struct {
+            T xyzw[4];
+        };
+        struct {
+            T rgba[4];
+        };
+        struct {
+            T x, y, z, w;
+        };
+        struct {
+            T r, g, b, a;
+        };
+    };
 
     Vec4() = default;
 

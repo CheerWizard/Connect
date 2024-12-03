@@ -3,7 +3,6 @@
 //
 
 #include "Profiler.hpp"
-#include "Clock.hpp"
 #include "Logger.hpp"
 
 Profiler::Profiler(const char* fileName, const char* functionName, int line) {

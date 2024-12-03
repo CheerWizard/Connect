@@ -18,10 +18,16 @@ file(GLOB_RECURSE SRC ../ConnectLib/*.c ../ConnectLib/*.cpp)
 
 macro(build_windows)
     add_library(${PROJECT_NAME} SHARED ${SRC})
+    target_precompile_headers(${PROJECT_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:Pch.hpp>")
     target_link_libraries(${PROJECT_NAME}
             Ws2_32
             Mswsock
             Advapi32
+    )
+    target_compile_options(${PROJECT_NAME}
+            PRIVATE
+            -Wall
+            -Werror
     )
 endmacro()
 
@@ -34,21 +40,34 @@ macro(build_android)
     file(GLOB_RECURSE ANDROID_SRC android/*.c android/*.cpp)
     add_library(${PROJECT_NAME} SHARED ${SRC} ${ANDROID_SRC})
     target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${ANDROID_NDK}/sources/android/native_app_glue)
+    target_precompile_headers(${PROJECT_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:Pch.hpp>")
     target_link_libraries(${PROJECT_NAME}
             android
             log
             native_app_glue
             EGL
             GLESv1_CM
+            OpenSLES
+    )
+    target_compile_options(${PROJECT_NAME}
+            PRIVATE
+            -Wall
+            -Werror
     )
 endmacro()
 
 macro(build_linux)
     add_library(${PROJECT_NAME} SHARED ${SRC})
+    target_precompile_headers(${PROJECT_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:Pch.hpp>")
     target_link_libraries(${PROJECT_NAME}
             X11
             Xrandr
             pulse
+    )
+    target_compile_options(${PROJECT_NAME}
+            PRIVATE
+            -Wall
+            -Werror
     )
 endmacro()
 

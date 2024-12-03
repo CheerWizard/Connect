@@ -5,8 +5,6 @@
 #ifndef CONNECT_APPLICATION_HPP
 #define CONNECT_APPLICATION_HPP
 
-#include "Types.hpp"
-
 struct SavedState {
     float angle = 0.0f;
     int32_t x = 0;

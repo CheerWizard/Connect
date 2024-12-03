@@ -17,7 +17,6 @@ ThreadPool::ThreadPool(size_t threadSize, size_t taskSize, const char* name, Thr
 
 ThreadPool::~ThreadPool() {
     running = false;
-    const size_t thread_size = threads.size();
     for (Thread* thread : threads) {
         delete thread;
     }

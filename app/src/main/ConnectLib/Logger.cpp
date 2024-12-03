@@ -4,8 +4,9 @@
 
 #include "Logger.hpp"
 
-void Logger::open(const char* filepath) {
-    threadPool = new ThreadPool(1, 10, "Log", ThreadPriority_HIGHEST);
+void Logger::open(const char* tag, const char* filepath) {
+    ASSERT(tag, "Logger tag is NULL!");
+    threadPool = new ThreadPool(1, 10, "Logger", ThreadPriority_HIGHEST);
     threadPool->push([=]() {
         file = fopen(filepath, "w");
         if (file == nullptr) {

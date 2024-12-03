@@ -3,7 +3,6 @@
 //
 
 #include "ConditionVar.hpp"
-#include "Assert.hpp"
 
 void ConditionVar::init() {
     pthread_cond_init(&handle, nullptr);

@@ -5,8 +5,6 @@
 #ifndef CONNECT_THREAD_HPP
 #define CONNECT_THREAD_HPP
 
-#include "Types.hpp"
-
 enum ThreadPriority {
     ThreadPriority_LOWEST,
     ThreadPriority_NORMAL,

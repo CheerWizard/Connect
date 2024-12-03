@@ -2,15 +2,9 @@
 // Created by cheerwizard on 28.11.24.
 //
 
-#include "Gfx.hpp"
-#include "Logger.hpp"
+#include "Graphics.hpp"
 
-#define GL_CONTEXT reinterpret_cast<EGLContext>(context)
-
-#include <EGL/egl.h>
-#include <GLES/gl.h>
-
-void Gfx::init() {
+void Graphics::init() {
     const GLubyte* vendor = glGetString(GL_VENDOR);
     const GLubyte* renderer = glGetString(GL_RENDERER);
     const GLubyte* version = glGetString(GL_VERSION);
@@ -27,10 +21,14 @@ void Gfx::init() {
     glDisable(GL_DEPTH_TEST);
 }
 
-void Gfx::free() {
+void Graphics::free() {
+
 }
 
-void Gfx::clearBuffer(int bufferBits) {
+void Graphics::render() {
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-    glClear(bufferBits);
+    glClear(GL_COLOR_BUFFER_BIT);
+    for (Shader* shader : shaders) {
+        shader->run();
+    }
 }
