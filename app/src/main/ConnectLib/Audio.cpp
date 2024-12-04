@@ -38,6 +38,14 @@ struct EchoAudioEngine {
 
 static EchoAudioEngine engine;
 
+//// pre-recorded sound clips, both are 8 kHz mono 16-bit signed little endian
+//static const char hello[] =
+//#include "clips/ClipHello.hpp"
+//;
+//static const char android[] =
+//#include "clips/ClipAndroid.hpp"
+//;
+
 void setAudioConfig() {
     JNIEnv* jni;
     ANativeActivity* activity = app->activity;

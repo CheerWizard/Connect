@@ -76,10 +76,11 @@ struct Texture {
 };
 
 struct Vertex {
-    inline static AttributeLayout layout = {{
-                                                    Attributes::POS,
-                                                    Attributes::UV
-                                            }};
+    inline static AttributeLayout layout = {
+            {
+                    Attributes::POS,
+                    Attributes::UV
+            }};
 
     Vec2<float> pos;
     Vec2<float> uv;
@@ -130,14 +131,22 @@ struct ShaderSource {
     string src;
 };
 
-struct Uniform {
+class UniformBuffer {
+
+public:
     uint32_t id = INVALID_RESOURCE_ID;
-    const char* name = nullptr;
-    float* data = nullptr;
+
 };
 
-struct UniformBuffer {
-    uint32_t id;
+struct RenderTarget {
+    uint32_t id = INVALID_RESOURCE_ID;
+};
+
+class UniformBuffers {
+
+public:
+    static
+
 };
 
 class Shader {
@@ -149,10 +158,10 @@ public:
     void run();
 
 private:
-    AttributeLayout attributeLayout = Vertex::layout;
-    vector<Uniform> uniforms;
-    vector<UniformBuffer> uniformBuffers;
-    vector<Texture> textures;
+    AttributeLayout* attributeLayout = nullptr;
+    vector<UniformBuffer*> uniformBuffers;
+    vector<Texture*> textures;
+    vector<RenderTarget*> renderTargets;
 };
 
 #endif //CONNECT_GRAPHICSCORE_HPP
