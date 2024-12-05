@@ -3,13 +3,25 @@
 //
 
 #include "Audio.hpp"
-#include "AudioPlayer.hpp"
-#include "AudioRecorder.hpp"
 #include "AudioEffect.hpp"
 
 #include <jni.h>
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
+
+#define SL_ASSERT(x)                   \
+  do {                                 \
+    ASSERT(SL_RESULT_SUCCESS == (x), ""); \
+    (void)(x);                        \
+  } while (0)
+
+/*
+ * Interface for player and recorder to communicate with audio engine
+ */
+#define SL_ENGINE_SERVICE_MSG_KICKSTART_PLAYER 1
+#define SL_ENGINE_SERVICE_MSG_RETRIEVE_DUMP_BUFS 2
+#define SL_ENGINE_SERVICE_MSG_RECORDED_AUDIO_AVAILABLE 3
+typedef bool (*SLEngineCallback)(void* context, uint32_t msg, void* data);
 
 const uint32_t PCM_FORMAT_8 = SL_PCMSAMPLEFORMAT_FIXED_8;
 const uint32_t PCM_FORMAT_16 = SL_PCMSAMPLEFORMAT_FIXED_16;
@@ -20,46 +32,57 @@ const uint32_t PCM_FORMAT_32 = SL_PCMSAMPLEFORMAT_FIXED_32;
 
 const int32_t SAMPLE_RATE_48 = SL_SAMPLINGRATE_48;
 
-void setSampleFormat(const SampleFormat &format, void *outFormat) {
-    ASSERT(outFormat != nullptr, "SLES sample format is NULL!");
+SLObjectItf outputMixObjectItf;
+SLObjectItf playerObjectItf;
+SLPlayItf playItf;
+SLAndroidSimpleBufferQueueItf playBufferQueueItf;
 
-    SLAndroidDataFormat_PCM_EX* slesFormat = reinterpret_cast<SLAndroidDataFormat_PCM_EX*>(outFormat);
+void processSLCallback(SLAndroidSimpleBufferQueueItf bufferQueue) {
 
-    memset(slesFormat, 0, sizeof(*slesFormat));
+}
 
-    slesFormat->formatType = SL_DATAFORMAT_PCM;
-    slesFormat->sampleRate = format.sampleRate;
-    slesFormat->endianness = SL_BYTEORDER_LITTLEENDIAN;
-    slesFormat->bitsPerSample = format.pcmFormat;
-    slesFormat->containerSize = format.pcmFormat;
+void registerCallback(SLEngineCallback callback, void* context) {
+
+}
+
+void setSampleFormat(const SampleFormat &format, SLAndroidDataFormat_PCM_EX* slFormat) {
+    ASSERT(slFormat, "SLES sample format is NULL!");
+
+    memset(slFormat, 0, sizeof(*slFormat));
+
+    slFormat->formatType = SL_DATAFORMAT_PCM;
+    slFormat->sampleRate = format.sampleRate;
+    slFormat->endianness = SL_BYTEORDER_LITTLEENDIAN;
+    slFormat->bitsPerSample = format.pcmFormat;
+    slFormat->containerSize = format.pcmFormat;
 
     // Only support 2 channels
     // For channelMask, refer to wilhelm/src/android/channels.c for details
     if (format.channels <= 1) {
-        slesFormat->numChannels = 1;
-        slesFormat->channelMask = SL_SPEAKER_FRONT_LEFT;
+        slFormat->numChannels = 1;
+        slFormat->channelMask = SL_SPEAKER_FRONT_LEFT;
     } else {
-        slesFormat->numChannels = 2;
-        slesFormat->channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
+        slFormat->numChannels = 2;
+        slFormat->channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
     }
 
-    slesFormat->representation = format.representation;
+    slFormat->representation = format.representation;
 
-    switch (slesFormat->representation) {
+    switch (slFormat->representation) {
         case SL_ANDROID_PCM_REPRESENTATION_UNSIGNED_INT:
-            slesFormat->bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_8;
-            slesFormat->containerSize = SL_PCMSAMPLEFORMAT_FIXED_8;
-            slesFormat->formatType = SL_ANDROID_DATAFORMAT_PCM_EX;
+            slFormat->bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_8;
+            slFormat->containerSize = SL_PCMSAMPLEFORMAT_FIXED_8;
+            slFormat->formatType = SL_ANDROID_DATAFORMAT_PCM_EX;
             break;
         case SL_ANDROID_PCM_REPRESENTATION_SIGNED_INT:
-            slesFormat->bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_16;  // supports 16, 24, and 32
-            slesFormat->containerSize = SL_PCMSAMPLEFORMAT_FIXED_16;
-            slesFormat->formatType = SL_ANDROID_DATAFORMAT_PCM_EX;
+            slFormat->bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_16;  // supports 16, 24, and 32
+            slFormat->containerSize = SL_PCMSAMPLEFORMAT_FIXED_16;
+            slFormat->formatType = SL_ANDROID_DATAFORMAT_PCM_EX;
             break;
         case SL_ANDROID_PCM_REPRESENTATION_FLOAT:
-            slesFormat->bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_32;
-            slesFormat->containerSize = SL_PCMSAMPLEFORMAT_FIXED_32;
-            slesFormat->formatType = SL_ANDROID_DATAFORMAT_PCM_EX;
+            slFormat->bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_32;
+            slFormat->containerSize = SL_PCMSAMPLEFORMAT_FIXED_32;
+            slFormat->formatType = SL_ANDROID_DATAFORMAT_PCM_EX;
             break;
         case 0:
             break;
@@ -136,13 +159,13 @@ void Audio::init() {
     engine.bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_16;
 
     result = slCreateEngine(&engine.slEngineObj, 0, nullptr, 0, nullptr, nullptr);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     result = (*engine.slEngineObj)->Realize(engine.slEngineObj, SL_BOOLEAN_FALSE);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     result = (*engine.slEngineObj)->GetInterface(engine.slEngineObj, SL_IID_ENGINE, &engine.slEngineItf);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     // compute the RECOMMENDED fast audio buffer size:
     //   the lower latency required
@@ -273,12 +296,12 @@ bool onAudioEngineMsgReceived(void* context, uint32_t msg, void* data) {
     ASSERT(context == &engine, "Audio Engine context is invalid!");
 
     switch (msg) {
-        case AUDIO_ENGINE_SERVICE_MSG_RETRIEVE_DUMP_BUFS: {
+        case SL_ENGINE_SERVICE_MSG_RETRIEVE_DUMP_BUFS: {
             *(static_cast<uint32_t*>(data)) = getEngineBufferCount();
             break;
         }
 
-        case AUDIO_ENGINE_SERVICE_MSG_RECORDED_AUDIO_AVAILABLE: {
+        case SL_ENGINE_SERVICE_MSG_RECORDED_AUDIO_AVAILABLE: {
             SampleBuffer* buffers = static_cast<SampleBuffer*>(data);
 
             ASSERT(engine.fastPathFramesPerBuf == buffers->size / engine.sampleChannels / (engine.bitsPerSample / 8),
@@ -328,7 +351,7 @@ void AudioPlayer::processSLCallback(SLAndroidSimpleBufferQueueItf bufferQueue) {
          */
         if (callback) {
             uint32_t count;
-            callback(context, AUDIO_ENGINE_SERVICE_MSG_RETRIEVE_DUMP_BUFS, &count);
+            callback(context, SL_ENGINE_SERVICE_MSG_RETRIEVE_DUMP_BUFS, &count);
         }
 
         return;
@@ -376,11 +399,11 @@ AudioPlayer::AudioPlayer(SampleFormat* sampleFormat, SLEngineItf slEngine) {
     this->sampleFormat = *sampleFormat;
 
     result = (*slEngine)->CreateOutputMix(slEngine, &outputMixObjectItf, 0, NULL, NULL);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     // realize the output mix
     result = (*outputMixObjectItf)->Realize(outputMixObjectItf, SL_BOOLEAN_FALSE);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     // configure audio source
     SLDataLocator_AndroidSimpleBufferQueue locatorBufferQueue = {
@@ -408,30 +431,30 @@ AudioPlayer::AudioPlayer(SampleFormat* sampleFormat, SLEngineItf slEngine) {
             slEngine, &playerObjectItf, &audioSrc, &audioSnk,
             sizeof(ids) / sizeof(ids[0]), ids, req
     );
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     // realize the player
     result = (*playerObjectItf)->Realize(playerObjectItf, SL_BOOLEAN_FALSE);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     // get the play interface
     result = (*playerObjectItf)
             ->GetInterface(playerObjectItf, SL_IID_PLAY, &playItf);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     // get the buffer queue interface
     result = (*playerObjectItf)
             ->GetInterface(playerObjectItf, SL_IID_BUFFERQUEUE,
                            &playBufferQueueItf);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     // register callback on the buffer queue
     result = (*playBufferQueueItf)
             ->RegisterCallback(playBufferQueueItf, bufferQueuePlayerCallback, this);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     result = (*playItf)->SetPlayState(playItf, SL_PLAYSTATE_STOPPED);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     // init an empty queue to track deviceQueue
     devShadowBuffer = new AudioBufferQueue(DEVICE_SHADOW_BUFFER_QUEUE_LEN);
@@ -496,16 +519,16 @@ SLresult AudioPlayer::start() {
     }
 
     result = (*playItf)->SetPlayState(playItf, SL_PLAYSTATE_STOPPED);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     result =(*playBufferQueueItf)
             ->Enqueue(playBufferQueueItf, silentBuffer.buffer, silentBuffer.size);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     devShadowBuffer->push(&silentBuffer);
 
     result = (*playItf)->SetPlayState(playItf, SL_PLAYSTATE_PLAYING);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     return SL_BOOLEAN_TRUE;
 }
@@ -514,14 +537,14 @@ void AudioPlayer::stop(void) {
     SLuint32 state;
 
     SLresult result = (*playItf)->GetPlayState(playItf, &state);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     if (state == SL_PLAYSTATE_STOPPED) return;
 
     LOCK(stopMutex);
 
     result = (*playItf)->SetPlayState(playItf, SL_PLAYSTATE_STOPPED);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     (*playBufferQueueItf)->Clear(playBufferQueueItf);
 }
@@ -557,14 +580,14 @@ void AudioRecorder::processSLCallback(SLAndroidSimpleBufferQueueItf bufferQueue)
     devShadowBuffer->pop();
     sampleBuffer->size = sampleBuffer->capacity;
 
-    callback(context, AUDIO_ENGINE_SERVICE_MSG_RECORDED_AUDIO_AVAILABLE, sampleBuffer);
+    callback(context, SL_ENGINE_SERVICE_MSG_RECORDED_AUDIO_AVAILABLE, sampleBuffer);
     recBuffer->push(sampleBuffer);
 
     SampleBuffer* freeSampleBuffer = nullptr;
     while (freeBuffer->front(&freeSampleBuffer) && devShadowBuffer->push(freeSampleBuffer)) {
         freeBuffer->pop();
         SLresult result = (*bufferQueue)->Enqueue(bufferQueue, freeSampleBuffer->buffer, freeSampleBuffer->capacity);
-        SLASSERT(result);
+        SL_ASSERT(result);
     }
 
     ++audioBufCount;
@@ -615,7 +638,7 @@ AudioRecorder::AudioRecorder(SampleFormat *sampleFormat, SLEngineItf slEngine)
             slEngine, &recObjectItf, &audioSrc, &audioSnk,
             sizeof(id) / sizeof(id[0]), id, req
     );
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     // Configure the voice recognition preset which has no
     // signal processing for lower latency.
@@ -628,16 +651,16 @@ AudioRecorder::AudioRecorder(SampleFormat *sampleFormat, SLEngineItf slEngine)
     }
 
     result = (*recObjectItf)->Realize(recObjectItf, SL_BOOLEAN_FALSE);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     result = (*recObjectItf)->GetInterface(recObjectItf, SL_IID_RECORD, &recItf);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     result = (*recObjectItf)->GetInterface(recObjectItf, SL_IID_ANDROIDSIMPLEBUFFERQUEUE, &recBufQueueItf);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     result = (*recBufQueueItf)->RegisterCallback(recBufQueueItf, bufferQueueRecorderCallback, this);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     devShadowBuffer = new AudioBufferQueue(DEVICE_SHADOW_BUFFER_QUEUE_LEN);
     ASSERT(devShadowBuffer != nullptr, "Device shadow buffer is NULL!");
@@ -654,10 +677,10 @@ SLboolean AudioRecorder::start() {
 
     // in case already recording, stop recording and clear buffer queue
     result = (*recItf)->SetRecordState(recItf, SL_RECORDSTATE_STOPPED);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     result = (*recBufQueueItf)->Clear(recBufQueueItf);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     for (int i = 0; i < RECORD_DEVICE_KICKSTART_BUF_COUNT; i++) {
         SampleBuffer* sampleBuffer = NULL;
@@ -671,13 +694,13 @@ SLboolean AudioRecorder::start() {
         ASSERT(sampleBuffer->buffer && sampleBuffer->capacity && !sampleBuffer->size, "SampleBuffer is empty!");
 
         result = (*recBufQueueItf)->Enqueue(recBufQueueItf, sampleBuffer->buffer, sampleBuffer->capacity);
-        SLASSERT(result);
+        SL_ASSERT(result);
 
         devShadowBuffer->push(sampleBuffer);
     }
 
     result = (*recItf)->SetRecordState(recItf, SL_RECORDSTATE_RECORDING);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     return (result == SL_RESULT_SUCCESS ? SL_BOOLEAN_TRUE : SL_BOOLEAN_FALSE);
 }
@@ -687,17 +710,17 @@ SLboolean AudioRecorder::stop() {
     SLuint32 curState;
 
     SLresult result = (*recItf)->GetRecordState(recItf, &curState);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     if (curState == SL_RECORDSTATE_STOPPED) {
         return SL_BOOLEAN_TRUE;
     }
 
     result = (*recItf)->SetRecordState(recItf, SL_RECORDSTATE_STOPPED);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     result = (*recBufQueueItf)->Clear(recBufQueueItf);
-    SLASSERT(result);
+    SL_ASSERT(result);
 
     return SL_BOOLEAN_TRUE;
 }

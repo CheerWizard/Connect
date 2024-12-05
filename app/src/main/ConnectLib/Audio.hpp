@@ -10,13 +10,6 @@
  */
 #define AUDIO_SAMPLE_CHANNELS 1
 
-#define SL_PCMSAMPLEFORMAT_FIXED_8	((SLuint16) 0x0008)
-#define SL_PCMSAMPLEFORMAT_FIXED_16	((SLuint16) 0x0010)
-#define SL_PCMSAMPLEFORMAT_FIXED_20 	((SLuint16) 0x0014)
-#define SL_PCMSAMPLEFORMAT_FIXED_24	((SLuint16) 0x0018)
-#define SL_PCMSAMPLEFORMAT_FIXED_28 	((SLuint16) 0x001C)
-#define SL_PCMSAMPLEFORMAT_FIXED_32	((SLuint16) 0x0020)
-
 extern const uint32_t PCM_FORMAT_8;
 extern const uint32_t PCM_FORMAT_16;
 extern const uint32_t PCM_FORMAT_20;
@@ -34,14 +27,6 @@ extern const int32_t SAMPLE_RATE_48;
 #define DEVICE_SHADOW_BUFFER_QUEUE_LEN 4
 #define BUF_COUNT 16
 
-/*
- * Interface for player and recorder to communicate with audio engine
- */
-#define AUDIO_ENGINE_SERVICE_MSG_KICKSTART_PLAYER 1
-#define AUDIO_ENGINE_SERVICE_MSG_RETRIEVE_DUMP_BUFS 2
-#define AUDIO_ENGINE_SERVICE_MSG_RECORDED_AUDIO_AVAILABLE 3
-typedef bool (*AUDIO_ENGINE_CALLBACK)(void* context, uint32_t msg, void* data);
-
 #ifndef BUFFER_QUEUE_CACHE_ALIGN
 #define BUFFER_QUEUE_CACHE_ALIGN 64
 #endif
@@ -53,18 +38,6 @@ struct SampleFormat {
     uint16_t pcmFormat;       // 8 bit, 16 bit, 24 bit ...
     uint32_t representation;  // android extensions
 };
-
-extern void setSampleFormat(const SampleFormat& format, void* outFormat);
-
-#if defined(ANDROID)
-
-#define SLASSERT(x)                   \
-  do {                                \
-    assert(SL_RESULT_SUCCESS == (x)); \
-    (void)(x);                        \
-  } while (0)
-
-#endif
 
 struct AudioConfig {
     bool supportRecording;
@@ -251,34 +224,19 @@ __inline__ SampleBuffer* allocateSampleBuffer(uint32_t count, uint32_t sizeInByt
 class AudioPlayer {
 
 public:
-    explicit AudioPlayer(SampleFormat* sampleFormat, SLEngineItf engine);
+    static void init(const SampleFormat& sampleFormat);
+    static void free();
 
-    ~AudioPlayer();
-
-    void setBufferQueues(AudioBufferQueue* playBuffer, AudioBufferQueue* freeBuffer);
-
-    SLresult start();
-
-    void stop();
-
-    void processSLCallback(SLAndroidSimpleBufferQueueItf bufferQueue);
+    static void start();
+    static void stop();
 
     uint32_t getDeviceBufferCount();
 
-    void registerCallback(AUDIO_ENGINE_CALLBACK callback, void* context);
-
 private:
-    SLObjectItf outputMixObjectItf;
-    SLObjectItf playerObjectItf;
-    SLPlayItf playItf;
-    SLAndroidSimpleBufferQueueItf playBufferQueueItf;
-
     SampleFormat sampleFormat;
     AudioBufferQueue* freeBuffer = nullptr;
     AudioBufferQueue* playBuffer = nullptr;
     AudioBufferQueue* devShadowBuffer = nullptr;
-
-    AUDIO_ENGINE_CALLBACK callback = nullptr;
 
     void* context = nullptr;
 
