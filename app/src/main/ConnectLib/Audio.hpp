@@ -5,7 +5,7 @@
 #ifndef CONNECT_AUDIO_HPP
 #define CONNECT_AUDIO_HPP
 
-#include "AudioCore.hpp"
+#include "AudioBackend.hpp"
 
 class Audio {
 

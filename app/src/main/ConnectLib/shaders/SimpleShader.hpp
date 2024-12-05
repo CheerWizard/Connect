@@ -5,7 +5,7 @@
 #ifndef CONNECT_SIMPLESHADER_HPP
 #define CONNECT_SIMPLESHADER_HPP
 
-#include "GraphicsCore.hpp"
+#include "RenderBackend.hpp"
 
 class SimpleShader : public Shader {
 

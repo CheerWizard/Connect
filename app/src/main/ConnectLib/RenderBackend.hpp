@@ -2,10 +2,8 @@
 // Created by cheerwizard on 02.12.24.
 //
 
-#ifndef CONNECT_GRAPHICSCORE_HPP
-#define CONNECT_GRAPHICSCORE_HPP
-
-static inline constexpr uint32_t INVALID_RESOURCE_ID = UINT32_MAX;
+#ifndef CONNECT_RENDERBACKEND_HPP
+#define CONNECT_RENDERBACKEND_HPP
 
 enum AttributeType
 {
@@ -35,7 +33,7 @@ enum AttributeType
 };
 
 struct Attribute {
-    uint32_t id = 0;
+    ID id = ID_NULL;
     uint32_t location = 0;
     AttributeType type;
     uint8_t byteSize = 0;
@@ -72,15 +70,15 @@ struct Viewport {
 };
 
 struct Texture {
-    uint32_t id = INVALID_RESOURCE_ID;
+    ID id = 0;
 };
 
 struct Vertex {
     inline static AttributeLayout layout = {
-            {
-                    Attributes::POS,
-                    Attributes::UV
-            }};
+    {
+        Attributes::POS,
+        Attributes::UV
+    }};
 
     Vec2<float> pos;
     Vec2<float> uv;
@@ -126,42 +124,70 @@ public:
 
 };
 
-struct ShaderSource {
-    string filepath;
-    string src;
-};
-
 class UniformBuffer {
 
 public:
-    uint32_t id = INVALID_RESOURCE_ID;
+    ID id = ID_NULL;
 
 };
 
 struct RenderTarget {
-    uint32_t id = INVALID_RESOURCE_ID;
+    ID id = ID_NULL;
 };
 
 class UniformBuffers {
+};
 
-public:
-    static
+enum ShaderStage {
+    ShaderStage_VERTEX,
+    ShaderStage_GEOMETRY,
+    ShaderStage_TESSELATION,
+    ShaderStage_PIXEL,
+    ShaderStage_COMPUTE,
+};
 
+struct ShaderSource {
+    ShaderStage stage;
+    string source;
+
+    ShaderSource() = default;
+    ShaderSource(ShaderStage stage, const string& source)
+    : stage(stage), source(source) {}
 };
 
 class Shader {
 
 public:
-    Shader();
+    Shader(const char* filepath);
     virtual ~Shader();
 
-    void run();
+private:
+    string readWithIncludes(const string& filepath);
+    vector<ShaderSource> readSources(const string& filepath);
+
+    void init();
+    void free();
+    void bind();
+    bool compile(const ShaderSource& shaderSource);
+    bool link();
 
 private:
+    ID id = ID_NULL;
     AttributeLayout* attributeLayout = nullptr;
     vector<UniformBuffer*> uniformBuffers;
     vector<Texture*> textures;
     vector<RenderTarget*> renderTargets;
 };
 
-#endif //CONNECT_GRAPHICSCORE_HPP
+class RenderBackend {
+
+public:
+    inline static Vec4<float> clearColor = {0.5, 0.5, 0.5, 1};
+
+    static void init();
+    static void free();
+    static void render();
+    static void resize(int w, int h);
+};
+
+#endif //CONNECT_RENDERBACKEND_HPP

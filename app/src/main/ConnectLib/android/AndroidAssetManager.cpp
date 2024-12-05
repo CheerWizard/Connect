@@ -4,7 +4,18 @@
 
 #include "AssetManager.hpp"
 
-Asset AssetManager::open(const char *filepath) {
-    AAsset* androidAsset = AAssetManager_open(app->activity->assetManager, filepath, AASSET_MODE_BUFFER);
-    return Asset(androidAsset);
+AssetHandle AssetManager::open(const char *filepath) {
+    return AAssetManager_open(app->activity->assetManager, filepath, AASSET_MODE_BUFFER);
+}
+
+void AssetManager::close(AssetHandle assetHandle) {
+
+}
+
+void AssetManager::read(AssetHandle assetHandle, void *&buffer, size_t &size) {
+
+}
+
+void AssetManager::write(AssetHandle assetHandle, void *buffer, size_t size) {
+
 }

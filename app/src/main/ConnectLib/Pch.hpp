@@ -9,5 +9,6 @@
 #include "Assert.hpp"
 #include "Math.hpp"
 #include "Logger.hpp"
+#include "FileManager.hpp"
 
 #endif //CONNECT_PCH_HPP

@@ -5,7 +5,7 @@
 #ifndef CONNECT_AUDIORECORDER_HPP
 #define CONNECT_AUDIORECORDER_HPP
 
-#include "AudioCore.hpp"
+#include "AudioBackend.hpp"
 #include "AudioBufferQueue.hpp"
 
 class AudioRecorder {

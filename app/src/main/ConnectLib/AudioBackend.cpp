@@ -2,7 +2,7 @@
 // Created by cheerwizard on 02.12.24.
 //
 
-#include "AudioCore.hpp"
+#include "AudioBackend.hpp"
 
 void setSampleFormat(const SampleFormat &format, void *outFormat) {
     ASSERT(outFormat != nullptr, "SLES sample format is NULL!");

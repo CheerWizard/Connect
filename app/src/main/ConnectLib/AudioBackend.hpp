@@ -2,8 +2,8 @@
 // Created by cheerwizard on 02.12.24.
 //
 
-#ifndef CONNECT_AUDIOCORE_HPP
-#define CONNECT_AUDIOCORE_HPP
+#ifndef CONNECT_AUDIOBACKEND_HPP
+#define CONNECT_AUDIOBACKEND_HPP
 
 /*
  * Audio Sample Controls...
@@ -54,4 +54,4 @@ struct AudioConfig {
     float decay;
 };
 
-#endif //CONNECT_AUDIOCORE_HPP
+#endif //CONNECT_AUDIOBACKEND_HPP

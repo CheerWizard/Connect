@@ -64,7 +64,7 @@ AudioRecorder::AudioRecorder(SampleFormat *sampleFormat, SLEngineItf slEngine)
 
     SLDataSink audioSnk = {&locateBufferQueue, &pcmFormat};
 
-    // create audio recorder
+    // init audio recorder
     // (requires the RECORD_AUDIO permission)
     const SLInterfaceID id[2] = {
             SL_IID_ANDROIDSIMPLEBUFFERQUEUE,

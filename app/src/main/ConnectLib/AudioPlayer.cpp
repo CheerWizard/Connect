@@ -104,7 +104,7 @@ AudioPlayer::AudioPlayer(SampleFormat* sampleFormat, SLEngineItf slEngine) {
     };
     SLDataSink audioSnk = { &locatorOutMix, NULL };
     /*
-     * create fast path audio player: SL_IID_BUFFERQUEUE and SL_IID_VOLUME
+     * init fast path audio player: SL_IID_BUFFERQUEUE and SL_IID_VOLUME
      * and other non-signal processing interfaces are ok.
      */
     SLInterfaceID ids[2] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME};
@@ -138,7 +138,7 @@ AudioPlayer::AudioPlayer(SampleFormat* sampleFormat, SLEngineItf slEngine) {
     result = (*playItf)->SetPlayState(playItf, SL_PLAYSTATE_STOPPED);
     SLASSERT(result);
 
-    // create an empty queue to track deviceQueue
+    // init an empty queue to track deviceQueue
     devShadowBuffer = new AudioBufferQueue(DEVICE_SHADOW_BUFFER_QUEUE_LEN);
     ASSERT(devShadowBuffer != nullptr, "Device shadow buffer is NULL!");
 

@@ -9,10 +9,10 @@ struct DateTime {
     uint32_t y;   // year
     uint32_t m;   // month
     uint32_t d;   // day
-    int64_t h;   // hour
-    int64_t min; // minute
-    int64_t s;   // second
-    int64_t ms;  // millisecond
+    int64_t h;    // hour
+    int64_t min;  // minute
+    int64_t s;    // second
+    int64_t ms;   // millisecond
 };
 
 struct Time {
