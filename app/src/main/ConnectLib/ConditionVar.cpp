@@ -4,11 +4,11 @@
 
 #include "ConditionVar.hpp"
 
-void ConditionVar::init() {
+ConditionVar::ConditionVar() {
     pthread_cond_init(&handle, nullptr);
 }
 
-void ConditionVar::free() {
+ConditionVar::~ConditionVar() {
     pthread_cond_destroy(&handle);
 }
 

@@ -4,13 +4,13 @@
 
 #include "Application.hpp"
 #include "Input.hpp"
-#include "Display.hpp"
-#include "Graphics.hpp"
+#include "Window.hpp"
 #include "AssetManager.hpp"
 #include "Audio.hpp"
+#include "Rendering.hpp"
 
 Application::Application(const char* logFilepath) {
-    LOG_OPEN("Connect", logFilepath);
+    LOG_INIT("Connect", logFilepath);
     initPlatform();
     restoreStatePlatform();
     Input::init();
@@ -21,7 +21,7 @@ Application::~Application() {
     Audio::free();
     Input::free();
     freePlatform();
-    LOG_CLOSE();
+    LOG_FREE();
 }
 
 void Application::run() {
@@ -57,17 +57,16 @@ void Application::onUpdate() {
         savedState.angle = 0;
     }
 
-    Graphics::clearColor = {
-            (float) savedState.x / (float) Display::width,
+    Rendering::clearColor = {
+            (float) savedState.x / (float) Window::width,
             savedState.angle,
-            (float) savedState.y / (float) Display::height,
+            (float) savedState.y / (float) Window::height,
             1
     };
 }
 
 void Application::onRender() {
-    Graphics::render();
-    Display::swapChain();
+    Rendering::render();
 }
 
 void Application::onSensor(int fd, int events) {
@@ -81,13 +80,13 @@ void Application::onMotionPosition(float x, float y) {
 }
 
 void Application::initDisplay() {
-    Display::init();
-    Graphics::init();
+    Window::init();
+    Rendering::init();
 }
 
 void Application::terminateDisplay() {
-    Graphics::free();
-    Display::terminate();
+    Rendering::free();
+    Window::free();
     pause();
 }
 

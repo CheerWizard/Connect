@@ -2,7 +2,7 @@
 // Created by cheerwizard on 02.12.24.
 //
 
-#include "RenderBackend.hpp"
+#include "Rendering.hpp"
 
 Shader::Shader(const char* filepath) {
     vector<ShaderSource> sources = readSources(filepath);

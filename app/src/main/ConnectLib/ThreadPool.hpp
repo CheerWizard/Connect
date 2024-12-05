@@ -21,7 +21,7 @@ private:
     void run();
 
     bool running = false;
-    vector<Thread*> threads;
+    vector<Thread> threads;
     CircleBuffer<function<void()>> tasks;
     Mutex wakeMutex;
     ConditionVar wakeConditionVar;

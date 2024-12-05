@@ -15,7 +15,3 @@ void AssetManager::close(AssetHandle assetHandle) {
 void AssetManager::read(AssetHandle assetHandle, void *&buffer, size_t &size) {
 
 }
-
-void AssetManager::write(AssetHandle assetHandle, void *buffer, size_t size) {
-
-}

@@ -5,6 +5,9 @@
 #include "Input.hpp"
 #include "Application.hpp"
 
+#include <android/sensor.h>
+#include <android/input.h>
+
 //ASensorManager* sensorManager = nullptr;
 const ASensor* accelerometerSensor = nullptr;
 ASensorEventQueue* sensorEventQueue = nullptr;

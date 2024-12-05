@@ -4,6 +4,9 @@
 
 #include "Logger.hpp"
 
+#include <android/set_abort_message.h>
+#include <android/log.h>
+
 void Logger::printVerbose(LogColor color, char *log) {
     __android_log_buf_write(LOG_ID_MAIN, ANDROID_LOG_VERBOSE, tag, log);
 }

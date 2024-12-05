@@ -5,23 +5,16 @@
 #include "ThreadPool.hpp"
 
 ThreadPool::ThreadPool(size_t threadSize, size_t taskSize, const char* name, ThreadPriority priority) {
-    threads.resize(threadSize);
+    threads.reserve(threadSize);
     tasks.resize(taskSize);
-    wakeMutex.init();
-    wakeConditionVar.init();
     for (int i = 0; i < threadSize ; i++) {
-        threads[i] = new Thread(name, priority);
+        threads.emplace_back(name, priority);
     }
     run();
 }
 
 ThreadPool::~ThreadPool() {
     running = false;
-    for (Thread* thread : threads) {
-        delete thread;
-    }
-    wakeMutex.free();
-    wakeConditionVar.free();
 }
 
 void ThreadPool::push(const function<void()>& task) {
@@ -41,8 +34,8 @@ void ThreadPool::run() {
     running = true;
     const size_t thread_size = threads.size();
     for (int i = 0 ; i < thread_size ; i++) {
-        Thread* thread = threads[i];
-        thread->run([=] {
+        Thread& thread = threads[i];
+        thread.run([=] {
             while (running) {
                 if (function<void()> task; tasks.pop(task)) {
                     task();
@@ -54,6 +47,6 @@ void ThreadPool::run() {
                 }
             }
         });
-        thread->detach();
+        thread.detach();
     }
 }

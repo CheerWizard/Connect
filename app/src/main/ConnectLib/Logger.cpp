@@ -4,10 +4,12 @@
 
 #include "Logger.hpp"
 
-void Logger::open(const char* tag, const char* filepath) {
+Logger::Logger(const char* tag, const char* filepath)
+:
+threadPool(1, 10, "Logger", ThreadPriority_HIGHEST)
+{
     ASSERT(tag, "Logger tag is NULL!");
-    threadPool = new ThreadPool(1, 10, "Logger", ThreadPriority_HIGHEST);
-    threadPool->push([=]() {
+    threadPool.push([=]() {
         file = fopen(filepath, "w");
         if (file == nullptr) {
             error(__FILE__, __FUNCTION__, __LINE__, "Failed to open log file %s", filepath);
@@ -17,10 +19,9 @@ void Logger::open(const char* tag, const char* filepath) {
     });
 }
 
-void Logger::close() {
+Logger::~Logger() {
     LOG_INFO("Logger file is closing...");
-    threadPool->push([=]() {
+    threadPool.push([=]() {
         fclose(file);
-        delete threadPool;
     });
 }

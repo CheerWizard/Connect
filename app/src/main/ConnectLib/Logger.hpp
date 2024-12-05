@@ -10,35 +10,35 @@
 
 #if defined(DEBUG)
 
-#define LOG_OPEN(tag, filepath) logger.open(tag, filepath)
-#define LOG_CLOSE() logger.close()
+#define LOG_INIT(tag, filepath) logger = new Logger(tag, filepath)
+#define LOG_FREE() delete logger
 
 #if defined(ANDROID)
 
-#define LOG_VERB(msg, ...) logger.threadPool->push([=] { logger.verbose(msg, 0, ##__VA_ARGS__); })
-#define LOG_INFO(msg, ...) logger.threadPool->push([=] { logger.info(msg, 0, ##__VA_ARGS__); })
-#define LOG_DBG(msg, ...) logger.threadPool->push([=] { logger.debug(msg, 0, ##__VA_ARGS__); })
-#define LOG_WARN(msg, ...) logger.threadPool->push([=] { logger.warning(msg, 0, ##__VA_ARGS__); })
-#define LOG_ERR(msg, ...) logger.threadPool->push([=] { logger.error(__FILE__, __FUNCTION__, __LINE__, msg, 0, ##__VA_ARGS__); })
-#define LOG_ASSERT(x, msg, ...) logger.threadPool->push([=] { logger.assertion(__FILE__, __FUNCTION__, __LINE__, msg, 0, ##__VA_ARGS__); })
-#define LOG_ABORT(msg, ...) logger.threadPool->push([=] { logger.abort(__FILE__, __FUNCTION__, __LINE__, msg, 0, ##__VA_ARGS__); })
+#define LOG_VERB(msg, ...) logger->threadPool.push([=] { logger->verbose(msg, 0, ##__VA_ARGS__); })
+#define LOG_INFO(msg, ...) logger->threadPool.push([=] { logger->info(msg, 0, ##__VA_ARGS__); })
+#define LOG_DBG(msg, ...) logger->threadPool.push([=] { logger->debug(msg, 0, ##__VA_ARGS__); })
+#define LOG_WARN(msg, ...) logger->threadPool.push([=] { logger->warning(msg, 0, ##__VA_ARGS__); })
+#define LOG_ERR(msg, ...) logger->threadPool.push([=] { logger->error(__FILE__, __FUNCTION__, __LINE__, msg, 0, ##__VA_ARGS__); })
+#define LOG_ASSERT(x, msg, ...) logger->threadPool.push([=] { logger->assertion(__FILE__, __FUNCTION__, __LINE__, msg, 0, ##__VA_ARGS__); })
+#define LOG_ABORT(msg, ...) logger->threadPool.push([=] { logger->abort(__FILE__, __FUNCTION__, __LINE__, msg, 0, ##__VA_ARGS__); })
 
 #else
 
-#define LOG_VERB(msg, ...) logger.threadPool->push([=] { logger.verbose(msg, ##__VA_ARGS__); })
-#define LOG_INFO(msg, ...) logger.threadPool->push([=] { logger.info(msg, ##__VA_ARGS__); })
-#define LOG_DBG(msg, ...) logger.threadPool->push([=] { logger.debug(msg, ##__VA_ARGS__); })
-#define LOG_WARN(msg, ...) logger.threadPool->push([=] { logger.warning(msg, ##__VA_ARGS__); })
-#define LOG_ERR(msg, ...) logger.threadPool->push([=] { logger.error(__FILE__, __FUNCTION__, __LINE__, msg, ##__VA_ARGS__); })
-#define LOG_ASSERT(x, msg, ...) logger.threadPool->push([=] { logger.assertion(__FILE__, __FUNCTION__, __LINE__, msg, ##__VA_ARGS__); })
-#define LOG_ABORT(msg, ...) logger.threadPool->push([=] { logger.abort(__FILE__, __FUNCTION__, __LINE__, msg, ##__VA_ARGS__); })
+#define LOG_VERB(msg, ...) logger->threadPool.push([=] { logger->verbose(msg, ##__VA_ARGS__); })
+#define LOG_INFO(msg, ...) logger->threadPool.push([=] { logger->info(msg, ##__VA_ARGS__); })
+#define LOG_DBG(msg, ...) logger->threadPool.push([=] { logger->debug(msg, ##__VA_ARGS__); })
+#define LOG_WARN(msg, ...) logger->threadPool.push([=] { logger->warning(msg, ##__VA_ARGS__); })
+#define LOG_ERR(msg, ...) logger->threadPool.push([=] { logger->error(__FILE__, __FUNCTION__, __LINE__, msg, ##__VA_ARGS__); })
+#define LOG_ASSERT(x, msg, ...) logger->threadPool.push([=] { logger->assertion(__FILE__, __FUNCTION__, __LINE__, msg, ##__VA_ARGS__); })
+#define LOG_ABORT(msg, ...) logger->threadPool.push([=] { logger->abort(__FILE__, __FUNCTION__, __LINE__, msg, ##__VA_ARGS__); })
 
 #endif
 
 #else
 
-#define LOG_OPEN(filepath)
-#define LOG_CLOSE()
+#define LOG_INIT(filepath)
+#define LOG_FREE()
 
 #define LOG_VERB(msg, ...)
 #define LOG_INFO(msg, ...)
@@ -74,11 +74,10 @@ enum LogColor {
 class Logger {
 
 public:
-    ThreadPool* threadPool = nullptr;
+    ThreadPool threadPool;
 
-    void open(const char* tag, const char* filepath);
-
-    void close();
+    Logger(const char* tag, const char* filepath);
+    ~Logger();
 
     template<typename... Args>
     void verbose(const char* msg, Args &&... args);
@@ -115,13 +114,13 @@ private:
     char buffer[256] = {};
 };
 
-inline Logger logger = {};
+inline Logger* logger = nullptr;
 
 template<typename ... Args>
 void Logger::verbose(const char* msg, Args &&... args) {
     // TODO: consider how to copy msg and args into thread pool tasks
     sprintf(buffer, msg, args...);
-    threadPool->push([=]() {
+    threadPool.push([=]() {
         char fmt_buffer[256] = {};
         char text_buffer[256] = {};
         DateTime date_time = Clock::getDateTime();

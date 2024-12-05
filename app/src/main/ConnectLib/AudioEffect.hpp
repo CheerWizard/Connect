@@ -5,29 +5,17 @@
 #ifndef CONNECT_AUDIOEFFECT_HPP
 #define CONNECT_AUDIOEFFECT_HPP
 
-class AudioFormat {
-
-protected:
-    int32_t sampleRate = SL_SAMPLINGRATE_48;
-    int32_t channelCount = 2;
-    SLuint32 format = SL_PCMSAMPLEFORMAT_FIXED_16;
-
-    AudioFormat(int32_t sampleRate, int32_t channelCount, SLuint32 format)
-    : sampleRate(sampleRate), channelCount(channelCount), format(format){};
-
-    virtual ~AudioFormat() {}
-
-};
+#include "Audio.hpp"
 
 /**
  * An audio delay effect:
  *   - decay is for feedback(echo)weight
  *   - delay time is adjustable
  */
-class AudioDelay : public AudioFormat {
+class AudioDelay {
 
 public:
-    explicit AudioDelay(int32_t sampleRate, int32_t channelCount, SLuint32 format, size_t delayTimeInMs, float weight);
+    explicit AudioDelay(int32_t sampleRate, int32_t channelCount, uint32_t format, size_t delayTimeInMs, float weight);
 
     ~AudioDelay();
 
@@ -44,13 +32,16 @@ public:
 private:
     void allocateBuffer();
 
+    int32_t sampleRate = SAMPLE_RATE_48;
+    int32_t channelCount = 2;
+    uint32_t format = PCM_FORMAT_16;
     size_t delayTime = 0;
     float decayWeight = 0.5;
     void* buffer = nullptr;
     size_t bufCapacity = 0;
     size_t bufSize = 0;
     size_t curPos = 0;
-    mutex lock;
+    Mutex mutex;
     int32_t feedbackFactor;
     int32_t liveAudioFactor;
 };

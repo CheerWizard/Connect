@@ -19,10 +19,15 @@ static const uint32_t MS_PER_SEC = 1000;
  * @param delayTimeInMs
  */
 AudioDelay::AudioDelay(
-        int32_t sampleRate, int32_t channelCount,
-        SLuint32 format, size_t delayTimeInMs, float decayWeight
-)
-: AudioFormat(sampleRate, channelCount, format),
+    int32_t sampleRate,
+    int32_t channelCount,
+    uint32_t format,
+    size_t delayTimeInMs,
+    float decayWeight
+) :
+sampleRate(sampleRate),
+channelCount(channelCount),
+format(format),
 delayTime(delayTimeInMs),
 decayWeight(decayWeight)
 {
@@ -46,7 +51,7 @@ AudioDelay::~AudioDelay() {
 bool AudioDelay::setDelayTime(size_t delayTimeInMS) {
     if (delayTimeInMS == delayTime) return true;
 
-    lock_guard<mutex> lock(this->lock);
+    LOCK(mutex);
 
     if (buffer) {
         delete static_cast<uint8_t*>(buffer);
@@ -125,9 +130,7 @@ void AudioDelay::process(int16_t* liveAudio, int32_t numFrames) {
         return;
     }
 
-    if (!lock.try_lock()) {
-        return;
-    }
+    LOCK(mutex);
 
     if (numFrames + curPos > bufSize) {
         curPos = 0;
@@ -157,5 +160,4 @@ void AudioDelay::process(int16_t* liveAudio, int32_t numFrames) {
     }
 
     curPos += numFrames;
-    lock.unlock();
 }

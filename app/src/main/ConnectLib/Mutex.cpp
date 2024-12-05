@@ -4,11 +4,11 @@
 
 #include "Mutex.hpp"
 
-void Mutex::init() {
+Mutex::Mutex() {
     pthread_mutex_init(&handle, nullptr);
 }
 
-void Mutex::free() {
+Mutex::~Mutex() {
     pthread_mutex_destroy(&handle);
 }
 
@@ -18,4 +18,12 @@ void Mutex::lock() {
 
 void Mutex::unlock() {
     pthread_mutex_unlock(&handle);
+}
+
+LockGuard::LockGuard(Mutex& mutex) : mutex(mutex) {
+    this->mutex.lock();
+}
+
+LockGuard::~LockGuard() {
+    this->mutex.unlock();
 }

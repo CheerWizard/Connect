@@ -2,8 +2,8 @@
 // Created by cheerwizard on 02.12.24.
 //
 
-#ifndef CONNECT_RENDERBACKEND_HPP
-#define CONNECT_RENDERBACKEND_HPP
+#ifndef CONNECT_RENDERING_HPP
+#define CONNECT_RENDERING_HPP
 
 enum AttributeType
 {
@@ -179,10 +179,11 @@ private:
     vector<RenderTarget*> renderTargets;
 };
 
-class RenderBackend {
+// TODO: temp stub class
+class Rendering {
 
 public:
-    inline static Vec4<float> clearColor = {0.5, 0.5, 0.5, 1};
+    inline static Vec4<float> clearColor = { 0.5, 0.5, 0.5, 1 };
 
     static void init();
     static void free();
@@ -190,4 +191,4 @@ public:
     static void resize(int w, int h);
 };
 
-#endif //CONNECT_RENDERBACKEND_HPP
+#endif //CONNECT_RENDERING_HPP

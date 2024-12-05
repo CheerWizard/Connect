@@ -10,8 +10,8 @@
 class ConditionVar {
 
 public:
-    void init();
-    void free();
+    ConditionVar();
+    ~ConditionVar();
 
     void wait(Mutex& mutex);
     void notify();

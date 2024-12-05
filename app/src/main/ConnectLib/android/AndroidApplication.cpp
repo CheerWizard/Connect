@@ -4,6 +4,8 @@
 
 #include "Application.hpp"
 
+#include <android/choreographer.h>
+
 static void handleCommand(android_app* app, int32_t command) {
     Application* application = reinterpret_cast<Application*>(app->userData);
     switch (command) {

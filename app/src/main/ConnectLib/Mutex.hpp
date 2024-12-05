@@ -8,8 +8,8 @@
 class Mutex {
 
 public:
-    void init();
-    void free();
+    Mutex();
+    ~Mutex();
 
     void lock();
     void unlock();
@@ -19,5 +19,18 @@ public:
 private:
     pthread_mutex_t handle = {};
 };
+
+class LockGuard {
+
+public:
+    LockGuard(Mutex& mutex);
+    ~LockGuard();
+
+private:
+    Mutex& mutex;
+
+};
+
+#define LOCK(mutex) LockGuard lock##__LINE__(mutex)
 
 #endif //CONNECT_MUTEX_HPP
