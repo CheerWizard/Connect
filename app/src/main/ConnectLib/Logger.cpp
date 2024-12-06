@@ -25,3 +25,10 @@ Logger::~Logger() {
         fclose(file);
     });
 }
+
+void Logger::writeToFile(char* msg) {
+    if (file != nullptr) {
+        fputs(msg, file);
+        fflush(file);
+    }
+}

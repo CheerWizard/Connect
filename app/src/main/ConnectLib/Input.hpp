@@ -14,6 +14,7 @@ public:
     static void free();
     static void onFocusGained();
     static void onFocusLost();
+
 };
 
 #endif //CONNECT_INPUT_HPP

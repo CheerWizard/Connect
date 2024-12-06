@@ -10,28 +10,28 @@
 
 #if defined(DEBUG)
 
-#define LOG_INIT(tag, filepath) logger = new Logger(tag, filepath)
-#define LOG_FREE() delete logger
+#define LOG_INIT(tag, filepath) Logger::open(tag, filepath)
+#define LOG_FREE() Logger::close()
 
 #if defined(ANDROID)
 
-#define LOG_VERB(msg, ...) logger->threadPool.push([=] { logger->verbose(msg, 0, ##__VA_ARGS__); })
-#define LOG_INFO(msg, ...) logger->threadPool.push([=] { logger->info(msg, 0, ##__VA_ARGS__); })
-#define LOG_DBG(msg, ...) logger->threadPool.push([=] { logger->debug(msg, 0, ##__VA_ARGS__); })
-#define LOG_WARN(msg, ...) logger->threadPool.push([=] { logger->warning(msg, 0, ##__VA_ARGS__); })
-#define LOG_ERR(msg, ...) logger->threadPool.push([=] { logger->error(__FILE__, __FUNCTION__, __LINE__, msg, 0, ##__VA_ARGS__); })
-#define LOG_ASSERT(x, msg, ...) logger->threadPool.push([=] { logger->assertion(__FILE__, __FUNCTION__, __LINE__, msg, 0, ##__VA_ARGS__); })
-#define LOG_ABORT(msg, ...) logger->threadPool.push([=] { logger->abort(__FILE__, __FUNCTION__, __LINE__, msg, 0, ##__VA_ARGS__); })
+#define LOG_VERB(msg, ...) Logger::threadPool.push([=] { Logger::verbose(msg, 0, ##__VA_ARGS__); })
+#define LOG_INFO(msg, ...) Logger::threadPool.push([=] { Logger::info(msg, 0, ##__VA_ARGS__); })
+#define LOG_DBG(msg, ...) Logger::threadPool.push([=] { Logger::debug(msg, 0, ##__VA_ARGS__); })
+#define LOG_WARN(msg, ...) Logger::threadPool.push([=] { Logger::warning(msg, 0, ##__VA_ARGS__); })
+#define LOG_ERR(msg, ...) Logger::threadPool.push([=] { Logger::error(__FILE__, __FUNCTION__, __LINE__, msg, 0, ##__VA_ARGS__); })
+#define LOG_ASSERT(x, msg, ...) Logger::threadPool.push([=] { Logger::assertion(__FILE__, __FUNCTION__, __LINE__, msg, 0, ##__VA_ARGS__); })
+#define LOG_ABORT(msg, ...) Logger::threadPool.push([=] { Logger::abort(__FILE__, __FUNCTION__, __LINE__, msg, 0, ##__VA_ARGS__); })
 
 #else
 
-#define LOG_VERB(msg, ...) logger->threadPool.push([=] { logger->verbose(msg, ##__VA_ARGS__); })
-#define LOG_INFO(msg, ...) logger->threadPool.push([=] { logger->info(msg, ##__VA_ARGS__); })
-#define LOG_DBG(msg, ...) logger->threadPool.push([=] { logger->debug(msg, ##__VA_ARGS__); })
-#define LOG_WARN(msg, ...) logger->threadPool.push([=] { logger->warning(msg, ##__VA_ARGS__); })
-#define LOG_ERR(msg, ...) logger->threadPool.push([=] { logger->error(__FILE__, __FUNCTION__, __LINE__, msg, ##__VA_ARGS__); })
-#define LOG_ASSERT(x, msg, ...) logger->threadPool.push([=] { logger->assertion(__FILE__, __FUNCTION__, __LINE__, msg, ##__VA_ARGS__); })
-#define LOG_ABORT(msg, ...) logger->threadPool.push([=] { logger->abort(__FILE__, __FUNCTION__, __LINE__, msg, ##__VA_ARGS__); })
+#define LOG_VERB(msg, ...) Logger::threadPool.push([=] { Logger::verbose(msg, ##__VA_ARGS__); })
+#define LOG_INFO(msg, ...) Logger::threadPool.push([=] { Logger::info(msg, ##__VA_ARGS__); })
+#define LOG_DBG(msg, ...) Logger::threadPool.push([=] { Logger::debug(msg, ##__VA_ARGS__); })
+#define LOG_WARN(msg, ...) Logger::threadPool.push([=] { Logger::warning(msg, ##__VA_ARGS__); })
+#define LOG_ERR(msg, ...) Logger::threadPool.push([=] { Logger::error(__FILE__, __FUNCTION__, __LINE__, msg, ##__VA_ARGS__); })
+#define LOG_ASSERT(x, msg, ...) Logger::threadPool.push([=] { Logger::assertion(__FILE__, __FUNCTION__, __LINE__, msg, ##__VA_ARGS__); })
+#define LOG_ABORT(msg, ...) Logger::threadPool.push([=] { Logger::abort(__FILE__, __FUNCTION__, __LINE__, msg, ##__VA_ARGS__); })
 
 #endif
 
@@ -74,47 +74,47 @@ enum LogColor {
 class Logger {
 
 public:
-    ThreadPool threadPool;
+    static ThreadPool threadPool;
 
-    Logger(const char* tag, const char* filepath);
-    ~Logger();
-
-    template<typename... Args>
-    void verbose(const char* msg, Args &&... args);
+    static void open(const char* tag, const char* filepath);
+    static void close();
 
     template<typename... Args>
-    void info(const char* msg, Args &&... args);
+    static void verbose(const char* msg, Args &&... args);
 
     template<typename... Args>
-    void debug(const char* msg, Args &&... args);
+    static void info(const char* msg, Args &&... args);
 
     template<typename... Args>
-    void warning(const char* msg, Args &&... args);
+    static void debug(const char* msg, Args &&... args);
 
     template<typename... Args>
-    void error(const char* filename, const char* function, int line, const char* msg, Args &&... args);
+    static void warning(const char* msg, Args &&... args);
 
     template<typename... Args>
-    void assertion(const char* filename, const char* function, int line, const char* msg, Args &&... args);
+    static void error(const char* filename, const char* function, int line, const char* msg, Args &&... args);
 
     template<typename... Args>
-    void abort(const char* filename, const char* function, int line, const char* msg, Args &&... args);
+    static void assertion(const char* filename, const char* function, int line, const char* msg, Args &&... args);
+
+    template<typename... Args>
+    static void abort(const char* filename, const char* function, int line, const char* msg, Args &&... args);
 
 private:
-    void printVerbose(LogColor color, char* log);
-    void printInfo(LogColor color, char* log);
-    void printDebug(LogColor color, char* log);
-    void printWarning(LogColor color, char* log);
-    void printError(LogColor color, char* log);
-    void printAssert(LogColor color, char* log);
-    void printAbort(LogColor color, char* log);
+    static void printVerbose(LogColor color, char* log);
+    static void printInfo(LogColor color, char* log);
+    static void printDebug(LogColor color, char* log);
+    static void printWarning(LogColor color, char* log);
+    static void printError(LogColor color, char* log);
+    static void printAssert(LogColor color, char* log);
+    static void printAbort(LogColor color, char* log);
 
-    FILE* file = nullptr;
-    const char* tag = nullptr;
-    char buffer[256] = {};
+    static void writeToFile(char* msg);
+
+    inline static FILE* file = nullptr;
+    inline static const char* tag = nullptr;
+    inline static char buffer[256] = {};
 };
-
-inline Logger* logger = nullptr;
 
 template<typename ... Args>
 void Logger::verbose(const char* msg, Args &&... args) {
@@ -137,10 +137,7 @@ void Logger::verbose(const char* msg, Args &&... args) {
         );
         sprintf(text_buffer, fmt_buffer, buffer);
         printVerbose(LogColor_LIGHT_GREEN, text_buffer);
-        if (file != nullptr) {
-            fputs(text_buffer, file);
-            fflush(file);
-        }
+        writeToFile(text_buffer);
     });
 }
 
@@ -162,10 +159,7 @@ void Logger::info(const char* msg, Args &&... args) {
     );
     sprintf(text_buffer, fmt_buffer, args...);
     printInfo(LogColor_GREEN, text_buffer);
-    if (file != nullptr) {
-        fputs(text_buffer, file);
-        fflush(file);
-    }
+    writeToFile(text_buffer);
 }
 
 template<typename ... Args>
@@ -186,10 +180,7 @@ void Logger::debug(const char* msg, Args &&... args) {
     );
     sprintf(text_buffer, fmt_buffer, args...);
     printDebug(LogColor_WHITE, text_buffer);
-    if (file != nullptr) {
-        fputs(text_buffer, file);
-        fflush(file);
-    }
+    writeToFile(text_buffer);
 }
 
 template<typename ... Args>
@@ -210,10 +201,7 @@ void Logger::warning(const char* msg, Args &&... args) {
     );
     sprintf(text_buffer, fmt_buffer, args...);
     printWarning(LogColor_YELLOW, text_buffer);
-    if (file != nullptr) {
-        fputs(text_buffer, file);
-        fflush(file);
-    }
+    writeToFile(text_buffer);
 }
 
 template<typename ... Args>
@@ -235,10 +223,7 @@ void Logger::error(const char* filename, const char* function, int line, const c
     );
     sprintf(text_buffer, fmt_buffer, args...);
     printError(LogColor_RED, text_buffer);
-    if (file != nullptr) {
-        fputs(text_buffer, file);
-        fflush(file);
-    }
+    writeToFile(text_buffer);
 }
 
 template<typename ... Args>
@@ -260,10 +245,7 @@ void Logger::assertion(const char* filename, const char* function, int line, con
     );
     sprintf(text_buffer, fmt_buffer, args...);
     printAssert(LogColor_RED, text_buffer);
-    if (file != nullptr) {
-        fputs(text_buffer, file);
-        fflush(file);
-    }
+    writeToFile(text_buffer);
 }
 
 template<typename ... Args>
@@ -285,10 +267,7 @@ void Logger::abort(const char* filename, const char* function, int line, const c
     );
     sprintf(text_buffer, fmt_buffer, args...);
     printAbort(LogColor_RED, text_buffer);
-    if (file != nullptr) {
-        fputs(text_buffer, file);
-        fflush(file);
-    }
+    writeToFile(text_buffer);
 }
 
 #endif //CONNECT_LOGGER_HPP

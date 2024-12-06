@@ -230,18 +230,19 @@ public:
     static void start();
     static void stop();
 
-    uint32_t getDeviceBufferCount();
+    static uint32_t getDeviceBufferCount();
 
 private:
-    SampleFormat sampleFormat;
-    AudioBufferQueue* freeBuffer = nullptr;
-    AudioBufferQueue* playBuffer = nullptr;
-    AudioBufferQueue* devShadowBuffer = nullptr;
+    inline static SampleFormat sampleFormat;
+    inline static AudioBufferQueue* freeBuffer = nullptr;
+    inline static AudioBufferQueue* playBuffer = nullptr;
+    inline static AudioBufferQueue* devShadowBuffer = nullptr;
 
-    void* context = nullptr;
+    inline static void* context = nullptr;
 
-    SampleBuffer silentBuffer;
-    Mutex stopMutex;
+    inline static SampleBuffer silentBuffer;
+
+    inline static Mutex stopMutex;
 };
 
 class AudioRecorder {

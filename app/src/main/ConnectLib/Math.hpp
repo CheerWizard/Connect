@@ -995,7 +995,7 @@ Mat4<T> inverse(const Mat4<T>& m) {
 }
 
 template<typename T>
-Mat4<T> inverse_fast(const Mat4<T>& m) {
+Mat4<T> fastInverseMatrix(const Mat4<T>& m) {
     // TODO(cheerwizard): not implemented!
     return {};
 }
@@ -1049,60 +1049,50 @@ inline void rotate(Mat4<float>& m, const Vec3<Radians>& r, const Vec3<float>& ax
     m = m * rz * ry * rx;
 }
 
-class Matrix {
-public:
-    static Mat4<float> mat4_model(const Vec3<float>& translation, const Vec3<Radians>& rotation, const Vec3<float>& scalar)
+struct ModelMat : Mat4<float> {
+    ModelMat(const Vec3<float>& translation, const Quat& rotation, const Vec3<float>& scalar)
+    : Mat4<float>()
     {
-        Mat4<float> m;
-        translate(m, translation);
-        rotate(m, rotation, { 1, 1, 1 });
-        scale(m, scalar);
-        return m;
-    }
-
-    static Mat4<float> mat4_model(const Vec3<float>& translation, const Quat& rotation, const Vec3<float>& scalar)
-    {
-        Mat4<float> m;
+        Mat4<float>& m = *this;
         translate(m, translation);
         m = m * Mat4<float>(rotation);
         scale(m, scalar);
-        return m;
     }
+};
 
-    static Mat4<float> mat4_rigid(const Vec3<float>& translation, const Vec3<Radians>& rotation) {
-        Mat4<float> m;
-        translate(m, translation);
-        rotate(m, rotation, { 1, 1, 1 });
-        return m;
-    }
-
-    static Mat4<float> mat4_rigid(const Vec3<float>& translation, const Quat& rotation) {
-        Mat4<float> m;
+struct RigidBodyMat : Mat4<float> {
+    RigidBodyMat(const Vec3<float>& translation, const Quat& rotation) : Mat4<float>() {
+        Mat4<float>& m = *this;
         translate(m, translation);
         m = m * Mat4<float>(rotation);
-        return m;
     }
+};
 
-    static Mat4<float> mat4_view(const Vec3<float>& position, const Vec3<float>& front, const Vec3<float>& up)
-    {
+struct ViewMatrix : Mat4<float> {
+    ViewMatrix(const Vec3<float>& position, const Vec3<float>& front, const Vec3<float>& up)
+    : Mat4<float>() {
         Vec3<float> right = normalize(cross(front, up));
-        return inverse_fast(transpose(Mat4<float>(
+        *this = fastInverseMatrix(transpose(Mat4<float>(
                 right,
                 cross(right, front),
                 -front,
                 position
         )));
     }
+};
 
-    static Mat4<float> mat4_ortho(float left, float right, float bottom, float top, float z_near, float z_far)
-    {
-        return Mat4<float> {
-                { 2.0f / (right - left), 0.0f, 0.0f, 0.0f },
-                { 0.0f, 2.0f / (bottom - top), 0.0f, 0.0f },
-                { 0.0f, 0.0f, 1.0f / (z_near - z_far), 0.0f },
-                { -(right + left) / (right - left), -(bottom + top) / (bottom - top), z_near / (z_near - z_far), 1.0f }
-        };
-    }
+struct OrthoMatrix : Mat4<float> {
+    OrthoMatrix(float left, float right, float bottom, float top, float z_near, float z_far)
+    : Mat4<float>(
+            { 2.0f / (right - left), 0.0f, 0.0f, 0.0f },
+            { 0.0f, 2.0f / (bottom - top), 0.0f, 0.0f },
+            { 0.0f, 0.0f, 1.0f / (z_near - z_far), 0.0f },
+            { -(right + left) / (right - left), -(bottom + top) / (bottom - top), z_near / (z_near - z_far), 1.0f }
+    ) {}
+};
+
+class Matrix {
+public:
 
     static Mat4<float> mat4_perspective(float aspect, Degree fov, float z_near, float z_far) {
         float f = 1.0f / tan(Radians(0.5f * fov));
